@@ -217,7 +217,8 @@
                             data-place-title="⛪ Chiesa di San Martino Vescovo"
                             data-google="https://maps.app.goo.gl/6omwCTy1Atd1c3Cb7"
                             data-waze="https://waze.com/ul?ll=40.761874%2C14.785191&amp;navigate=yes"
-                            data-coordinates="40.761874,14.785191">⛪ Chiesa di San Martino Vescovo</button>
+                            data-coordinates="40.761874,14.785191"
+                            data-parking-coordinates="40.764173,14.784570">⛪ Chiesa di San Martino Vescovo</button>
                     <p class="ceremony-time">Cerimonia ore 11:00</p>
                 <div class="ceremony-link">
 <a
@@ -355,6 +356,30 @@
                     <img class="navigation-logo" src="images/waze.png" alt="">Waze
                 </a>
                 <a class="button button-secondary map-button" id="placeApple" target="_blank" rel="noopener noreferrer">
+                    <img class="navigation-logo" src="images/mappe.png" alt="">Mappe di Apple
+                </a>
+                <button class="button button-secondary parking-open" id="parkingOpen" type="button" hidden>
+                    🚗 Parcheggia qui
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- PARCHEGGIO CHIESA -->
+    <dialog class="calendar-dialog" id="parkingDialog" aria-labelledby="parkingTitle" aria-describedby="parkingDistance">
+        <div class="calendar-paper">
+            <button class="calendar-close" id="parkingClose" type="button"
+                    aria-label="Chiudi indicazioni parcheggio" autofocus>×</button>
+            <h2 id="parkingTitle"><em>🚗 Parcheggio</em></h2>
+            <p class="parking-distance" id="parkingDistance">Circa 4 minuti a piedi dalla chiesa</p>
+            <div class="calendar-actions">
+                <a class="button button-secondary map-button" id="parkingGoogle" target="_blank" rel="noopener noreferrer">
+                    <img class="navigation-logo" src="images/maps.png" alt="">Google Maps
+                </a>
+                <a class="button button-secondary map-button" id="parkingWaze" target="_blank" rel="noopener noreferrer">
+                    <img class="navigation-logo" src="images/waze.png" alt="">Waze
+                </a>
+                <a class="button button-secondary map-button" id="parkingApple" target="_blank" rel="noopener noreferrer">
                     <img class="navigation-logo" src="images/mappe.png" alt="">Mappe di Apple
                 </a>
             </div>
