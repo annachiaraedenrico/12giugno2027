@@ -73,7 +73,6 @@
 
     font-family:
         "Allura",
-        "Great Vibes",
         cursive;
 
     font-size:
@@ -133,8 +132,7 @@
     color: var(--muted);
 
     font-family:
-        Georgia,
-        "Times New Roman",
+        "Lora",
         serif;
 
     font-size:
@@ -231,7 +229,7 @@
 
     font-family:
         "Cormorant Garamond",
-        Georgia,
+        "Lora",
         serif;
 
     font-size:
@@ -362,7 +360,7 @@
 
     font-family:
         "Cormorant Garamond",
-        Georgia,
+        "Lora",
         serif;
 
     font-size: 0.60rem;
