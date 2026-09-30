@@ -229,30 +229,7 @@ if (
     const closeButton = document.getElementById("giftClose");
     if (!giftToggle || !dialog || !closeButton) return;
     let previousFocus = null;
-    let pointerStartedOutside = false;
-    giftToggle.addEventListener("click", () => {
-        if (dialog.open) return;
-        previousFocus = document.activeElement;
-        dialog.showModal();
-    });
-    closeButton.addEventListener("click", () => closeDialogAnimated(dialog));
-    function isOutside(event) {
-        const rect = dialog.getBoundingClientRect();
-        return event.clientX < rect.left || event.clientX > rect.right ||
-            event.clientY < rect.top || event.clientY > rect.bottom;
-    }
-    dialog.addEventListener("pointerdown", event => {
-        pointerStartedOutside = event.target === dialog && isOutside(event);
-    });
-    dialog.addEventListener("click", event => {
-        if (pointerStartedOutside && event.target === dialog && isOutside(event)) {
-            closeDialogAnimated(dialog);
-        }
-        pointerStartedOutside = false;
-    });
-    dialog.addEventListener("close", () => {
-        pointerStartedOutside = false;
-        if (previousFocus && previousFocus.isConnected) {
+            if (previousFocus && previousFocus.isConnected) {
             previousFocus.focus({ preventScroll: true });
         }
     });
@@ -319,24 +296,6 @@ if (
     });
 
     closeButton.addEventListener("click", () => closeDialogAnimated(dialog));
-
-    // Il backdrop nativo inoltra il click al dialog.
-    let pointerStartedOutside = false;
-    function isOutside(event) {
-        const rect = dialog.getBoundingClientRect();
-        return event.clientX < rect.left || event.clientX > rect.right ||
-            event.clientY < rect.top || event.clientY > rect.bottom;
-    }
-    dialog.addEventListener("pointerdown", event => {
-        pointerStartedOutside = event.target === dialog && isOutside(event);
-    });
-    dialog.addEventListener("click", event => {
-        if (pointerStartedOutside && event.target === dialog && isOutside(event)) {
-            closeDialogAnimated(dialog);
-        }
-        pointerStartedOutside = false;
-    });
-
     // Escape e contenimento del focus sono gestiti dal dialog nativo.
     dialog.addEventListener("close", () => {
         if (previousFocus && previousFocus.isConnected) {
@@ -411,7 +370,6 @@ if (
     const frame = document.getElementById("rsvpFrame");
     if (!button || !dialog || !close || !frame) return;
     let previousFocus = null;
-    let pointerStartedOutside = false;
     button.addEventListener("click", () => {
         if (dialog.open) return;
         previousFocus = document.activeElement;
@@ -419,20 +377,7 @@ if (
         dialog.showModal();
     });
     close.addEventListener("click", () => closeDialogAnimated(dialog));
-    function isOutside(event) {
-        const rect = dialog.getBoundingClientRect();
-        return event.clientX < rect.left || event.clientX > rect.right ||
-            event.clientY < rect.top || event.clientY > rect.bottom;
-    }
-    dialog.addEventListener("pointerdown", event => {
-        pointerStartedOutside = event.target === dialog && isOutside(event);
-    });
-    dialog.addEventListener("click", event => {
-        if (pointerStartedOutside && event.target === dialog && isOutside(event)) closeDialogAnimated(dialog);
-        pointerStartedOutside = false;
-    });
     dialog.addEventListener("close", () => {
-        pointerStartedOutside = false;
         if (previousFocus && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
     });
 })();
@@ -443,7 +388,6 @@ if (
     const close = document.getElementById("placeClose");
     if (!dialog || !close) return;
     let previousFocus = null;
-    let pointerStartedOutside = false;
     document.querySelectorAll(".place-open").forEach(button => {
         button.addEventListener("click", () => {
             if (dialog.open) return;
@@ -459,23 +403,88 @@ if (
         });
     });
     close.addEventListener("click", () => closeDialogAnimated(dialog));
-    function isOutside(event) {
-        const rect = dialog.getBoundingClientRect();
-        return event.clientX < rect.left || event.clientX > rect.right ||
-            event.clientY < rect.top || event.clientY > rect.bottom;
-    }
-    dialog.addEventListener("pointerdown", event => {
-        pointerStartedOutside = event.target === dialog && isOutside(event);
-    });
-    dialog.addEventListener("click", event => {
-        if (pointerStartedOutside && event.target === dialog && isOutside(event)) closeDialogAnimated(dialog);
-        pointerStartedOutside = false;
-    });
     dialog.addEventListener("close", () => {
-        pointerStartedOutside = false;
         if (previousFocus && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
     });
 })();
+
+/* CHIUSURA AL TOCCO FUORI DALLA FINESTRA - COMPATIBILE SAFARI */
+function bindOutsideDialogClose(dialog) {
+    if (!dialog) return;
+
+    let pointerStartedOutside = false;
+
+    function isOutside(event) {
+        const rect = dialog.getBoundingClientRect();
+
+        return (
+            event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom
+        );
+    }
+
+    dialog.addEventListener("pointerdown", event => {
+        pointerStartedOutside =
+            event.target === dialog &&
+            isOutside(event);
+    });
+
+    dialog.addEventListener("pointerup", event => {
+        if (
+            pointerStartedOutside &&
+            event.target === dialog &&
+            isOutside(event)
+        ) {
+            closeDialogAnimated(dialog);
+        }
+
+        pointerStartedOutside = false;
+    });
+
+    dialog.addEventListener("touchstart", event => {
+        const touch = event.touches && event.touches[0];
+        if (!touch) return;
+
+        const rect = dialog.getBoundingClientRect();
+
+        pointerStartedOutside =
+            event.target === dialog &&
+            (
+                touch.clientX < rect.left ||
+                touch.clientX > rect.right ||
+                touch.clientY < rect.top ||
+                touch.clientY > rect.bottom
+            );
+    }, { passive: true });
+
+    dialog.addEventListener("touchend", event => {
+        const touch = event.changedTouches && event.changedTouches[0];
+        if (!touch) {
+            pointerStartedOutside = false;
+            return;
+        }
+
+        const rect = dialog.getBoundingClientRect();
+
+        const endedOutside =
+            touch.clientX < rect.left ||
+            touch.clientX > rect.right ||
+            touch.clientY < rect.top ||
+            touch.clientY > rect.bottom;
+
+        if (
+            pointerStartedOutside &&
+            event.target === dialog &&
+            endedOutside
+        ) {
+            closeDialogAnimated(dialog);
+        }
+
+        pointerStartedOutside = false;
+    }, { passive: true });
+}
 
 /* CHIUSURA ANIMATA DELLE FINESTRE */
 function closeDialogAnimated(dialog) {
@@ -508,6 +517,8 @@ function closeDialogAnimated(dialog) {
 }
 
 document.querySelectorAll("dialog.calendar-dialog").forEach(dialog => {
+    bindOutsideDialogClose(dialog);
+
     dialog.addEventListener("cancel", event => {
         event.preventDefault();
         closeDialogAnimated(dialog);
