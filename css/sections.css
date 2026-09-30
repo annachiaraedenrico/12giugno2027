@@ -1003,9 +1003,11 @@
 
 .calendar-close::before {
     content: "×";
-    display: block;
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
     font: 24px/1 Arial, Helvetica, sans-serif;
-    transform: translateY(2px);
 }
 
 .calendar-close::after {
