@@ -920,6 +920,8 @@
 
 .calendar-dialog::backdrop {
     background: rgba(80, 65, 55, 0.18);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .calendar-dialog[open] {
