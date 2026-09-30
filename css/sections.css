@@ -1217,3 +1217,16 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 .contact-actions a { min-height: 44px; justify-content: center; }
 .contact-actions img[src="images/whatsapp.png"] { width: 28px; height: 28px; }
 .contact-actions img[src="images/email.png"] { width: 36px; height: 36px; }
+
+
+/* PARCHEGGIO CHIESA */
+.parking-open {
+    margin-top: 8px;
+}
+
+.parking-distance {
+    margin: -4px 0 28px !important;
+    color: var(--muted);
+    font-size: 0.95rem !important;
+    line-height: 1.5;
+}
