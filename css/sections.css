@@ -66,6 +66,8 @@
     font-weight: 400;
 
     line-height: 1.1;
+
+    text-transform: uppercase;
 }
 
 
@@ -103,9 +105,8 @@
     color: var(--muted);
 
     font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+        "Lora",
+        serif;
 
     font-size: 1rem;
 
@@ -140,9 +141,8 @@
     color: #FFFFFF;
 
     font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+        "Lora",
+        serif;
 
     font-size: 0.88rem;
 
@@ -460,9 +460,8 @@
     gap: 12px;
 
     font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+        "Lora",
+        serif;
 
     color:
         var(--muted);
@@ -521,9 +520,8 @@
         #8176B8;
 
     font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+        "Lora",
+        serif;
 
     font-size: 0.75rem;
 
@@ -641,9 +639,8 @@
     text-align: left;
 
     font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+        "Lora",
+        serif;
 }
 
 
@@ -1007,7 +1004,7 @@
     inset: 0;
     display: grid;
     place-items: center;
-    font: 24px/1 Arial, Helvetica, sans-serif;
+    font: 24px/1 "Lora", serif;
 }
 
 .calendar-close::after {
@@ -1193,7 +1190,7 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 .calendar-dialog *,
 #scrollIndicator,
 #scrollIndicator * {
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: "Lora", serif;
 }
 
 /* NOTA SEMPRE ACCESSIBILE, ANCHE SOPRA LA BUSTA */
