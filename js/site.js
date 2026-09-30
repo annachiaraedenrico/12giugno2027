@@ -406,26 +406,107 @@ if (
 (() => {
     const dialog = document.getElementById("placeDialog");
     const close = document.getElementById("placeClose");
+    const parkingOpen = document.getElementById("parkingOpen");
+    const parkingDialog = document.getElementById("parkingDialog");
+    const parkingClose = document.getElementById("parkingClose");
+    const parkingGoogle = document.getElementById("parkingGoogle");
+    const parkingWaze = document.getElementById("parkingWaze");
+    const parkingApple = document.getElementById("parkingApple");
+
     if (!dialog || !close) return;
+
     let previousFocus = null;
+    let parkingCoordinates = null;
+    let switchingToParking = false;
+
     document.querySelectorAll(".place-open").forEach(button => {
         button.addEventListener("click", () => {
             if (dialog.open) return;
+
             previousFocus = button;
+            parkingCoordinates = button.dataset.parkingCoordinates || null;
+
             document.getElementById("placeTitle").textContent = button.dataset.placeTitle;
             document.getElementById("placeGoogle").href = button.dataset.google;
             document.getElementById("placeWaze").href = button.dataset.waze;
+
             const apple = new URL("https://maps.apple.com/");
             apple.searchParams.set("daddr", button.dataset.coordinates);
             apple.searchParams.set("dirflg", "d");
             document.getElementById("placeApple").href = apple.href;
+
+            if (parkingOpen) {
+                parkingOpen.hidden = !parkingCoordinates;
+            }
+
             openDialogAnimated(dialog);
         });
     });
+
     close.addEventListener("click", () => closeDialogAnimated(dialog));
+
     dialog.addEventListener("close", () => {
-        if (previousFocus && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
+        if (switchingToParking) {
+            switchingToParking = false;
+            return;
+        }
+
+        if (previousFocus && previousFocus.isConnected) {
+            previousFocus.focus({ preventScroll: true });
+        }
     });
+
+    if (
+        parkingOpen &&
+        parkingDialog &&
+        parkingClose &&
+        parkingGoogle &&
+        parkingWaze &&
+        parkingApple
+    ) {
+        parkingOpen.addEventListener("click", () => {
+            if (!parkingCoordinates || parkingDialog.open) return;
+
+            const [lat, lng] = parkingCoordinates.split(",").map(value => value.trim());
+
+            const google = new URL("https://www.google.com/maps/dir/");
+            google.searchParams.set("api", "1");
+            google.searchParams.set("destination", `${lat},${lng}`);
+            parkingGoogle.href = google.href;
+
+            parkingWaze.href =
+                `https://waze.com/ul?ll=${encodeURIComponent(`${lat},${lng}`)}&navigate=yes`;
+
+            const apple = new URL("https://maps.apple.com/");
+            apple.searchParams.set("daddr", `${lat},${lng}`);
+            apple.searchParams.set("dirflg", "d");
+            parkingApple.href = apple.href;
+
+            switchingToParking = true;
+
+            dialog.close();
+            dialog.removeAttribute("aria-modal");
+
+            activeDialog = parkingDialog;
+            parkingDialog.show();
+            parkingDialog.setAttribute("aria-modal", "true");
+
+            requestAnimationFrame(() => {
+                parkingClose.focus({ preventScroll: true });
+            });
+        });
+
+        parkingClose.addEventListener(
+            "click",
+            () => closeDialogAnimated(parkingDialog)
+        );
+
+        parkingDialog.addEventListener("close", () => {
+            if (previousFocus && previousFocus.isConnected) {
+                previousFocus.focus({ preventScroll: true });
+            }
+        });
+    }
 })();
 
 /* GESTIONE FINESTRE E SFONDO */
