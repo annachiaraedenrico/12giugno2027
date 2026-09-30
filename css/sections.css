@@ -1221,7 +1221,17 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 
 /* PARCHEGGIO CHIESA */
 .parking-open {
-    margin-top: 8px;
+    margin-top: 18px;
+}
+
+.parking-back {
+    left: 18px;
+    right: auto;
+}
+
+.parking-back::before {
+    content: "←";
+    font-size: 20px;
 }
 
 .parking-distance {
