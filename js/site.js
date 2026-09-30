@@ -227,14 +227,34 @@ if (
 (() => {
     const dialog = document.getElementById("giftDialog");
     const closeButton = document.getElementById("giftClose");
+
     if (!giftToggle || !dialog || !closeButton) return;
+
     let previousFocus = null;
-            if (previousFocus && previousFocus.isConnected) {
-            previousFocus.focus({ preventScroll: true });
+
+    giftToggle.addEventListener("click", () => {
+        if (dialog.open) return;
+
+        previousFocus = document.activeElement;
+        openDialogAnimated(dialog);
+    });
+
+    closeButton.addEventListener(
+        "click",
+        () => closeDialogAnimated(dialog)
+    );
+
+    dialog.addEventListener("close", () => {
+        if (
+            previousFocus &&
+            previousFocus.isConnected
+        ) {
+            previousFocus.focus({
+                preventScroll: true
+            });
         }
     });
 })();
-
 
 /* =======================================================
    CALENDARIO
@@ -292,7 +312,7 @@ if (
     openButton.addEventListener("click", () => {
         if (dialog.open) return;
         previousFocus = document.activeElement;
-        dialog.showModal();
+        openDialogAnimated(dialog);
     });
 
     closeButton.addEventListener("click", () => closeDialogAnimated(dialog));
@@ -374,7 +394,7 @@ if (
         if (dialog.open) return;
         previousFocus = document.activeElement;
         if (!frame.hasAttribute("src")) frame.src = frame.dataset.src;
-        dialog.showModal();
+        openDialogAnimated(dialog);
     });
     close.addEventListener("click", () => closeDialogAnimated(dialog));
     dialog.addEventListener("close", () => {
@@ -399,7 +419,7 @@ if (
             apple.searchParams.set("daddr", button.dataset.coordinates);
             apple.searchParams.set("dirflg", "d");
             document.getElementById("placeApple").href = apple.href;
-            dialog.showModal();
+            openDialogAnimated(dialog);
         });
     });
     close.addEventListener("click", () => closeDialogAnimated(dialog));
@@ -408,122 +428,172 @@ if (
     });
 })();
 
-/* CHIUSURA AL TOCCO FUORI DALLA FINESTRA - COMPATIBILE SAFARI */
-function bindOutsideDialogClose(dialog) {
-    if (!dialog) return;
+/* GESTIONE FINESTRE E SFONDO */
+const dialogBackdrop = document.createElement("div");
+dialogBackdrop.className = "dialog-backdrop";
+dialogBackdrop.hidden = true;
+dialogBackdrop.setAttribute("aria-hidden", "true");
+document.body.appendChild(dialogBackdrop);
 
-    let pointerStartedOutside = false;
+let activeDialog = null;
 
-    function isOutside(event) {
-        const rect = dialog.getBoundingClientRect();
+function openDialogAnimated(dialog) {
+    if (!dialog || dialog.open) return;
 
-        return (
-            event.clientX < rect.left ||
-            event.clientX > rect.right ||
-            event.clientY < rect.top ||
-            event.clientY > rect.bottom
-        );
-    }
+    activeDialog = dialog;
 
-    dialog.addEventListener("pointerdown", event => {
-        pointerStartedOutside =
-            event.target === dialog &&
-            isOutside(event);
+    dialogBackdrop.hidden = false;
+    dialogBackdrop.classList.remove("is-closing");
+
+    // Forza un nuovo frame così il fade parte sempre da zero.
+    requestAnimationFrame(() => {
+        dialogBackdrop.classList.add("is-visible");
     });
 
-    dialog.addEventListener("pointerup", event => {
-        if (
-            pointerStartedOutside &&
-            event.target === dialog &&
-            isOutside(event)
-        ) {
-            closeDialogAnimated(dialog);
-        }
-
-        pointerStartedOutside = false;
-    });
-
-    dialog.addEventListener("touchstart", event => {
-        const touch = event.touches && event.touches[0];
-        if (!touch) return;
-
-        const rect = dialog.getBoundingClientRect();
-
-        pointerStartedOutside =
-            event.target === dialog &&
-            (
-                touch.clientX < rect.left ||
-                touch.clientX > rect.right ||
-                touch.clientY < rect.top ||
-                touch.clientY > rect.bottom
-            );
-    }, { passive: true });
-
-    dialog.addEventListener("touchend", event => {
-        const touch = event.changedTouches && event.changedTouches[0];
-        if (!touch) {
-            pointerStartedOutside = false;
-            return;
-        }
-
-        const rect = dialog.getBoundingClientRect();
-
-        const endedOutside =
-            touch.clientX < rect.left ||
-            touch.clientX > rect.right ||
-            touch.clientY < rect.top ||
-            touch.clientY > rect.bottom;
-
-        if (
-            pointerStartedOutside &&
-            event.target === dialog &&
-            endedOutside
-        ) {
-            closeDialogAnimated(dialog);
-        }
-
-        pointerStartedOutside = false;
-    }, { passive: true });
+    dialog.show();
+    dialog.setAttribute("aria-modal", "true");
 }
 
-/* CHIUSURA ANIMATA DELLE FINESTRE */
 function closeDialogAnimated(dialog) {
-    if (!dialog.open || dialog.classList.contains("is-closing")) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        dialog.close();
+    if (
+        !dialog ||
+        !dialog.open ||
+        dialog.classList.contains("is-closing")
+    ) {
         return;
     }
-    const style = getComputedStyle(dialog);
-    dialog.style.setProperty("--dialog-close-transform", style.transform);
-    dialog.style.setProperty("--dialog-close-opacity", style.opacity);
-    let fallback;
-    let finished = false;
-    function finish() {
-        if (finished) return;
-        finished = true;
-        clearTimeout(fallback);
-        dialog.removeEventListener("animationend", onEnd);
+
+    const reducedMotion =
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+    if (reducedMotion) {
         dialog.close();
-        dialog.classList.remove("is-closing");
-        dialog.style.removeProperty("--dialog-close-transform");
-        dialog.style.removeProperty("--dialog-close-opacity");
+        dialog.removeAttribute("aria-modal");
+
+        dialogBackdrop.classList.remove(
+            "is-visible",
+            "is-closing"
+        );
+        dialogBackdrop.hidden = true;
+
+        if (activeDialog === dialog) {
+            activeDialog = null;
+        }
+
+        return;
     }
-    function onEnd(event) {
-        if (event.target === dialog && event.animationName === "dialog-disappear") finish();
-    }
-    dialog.addEventListener("animationend", onEnd);
+
+    const style = getComputedStyle(dialog);
+
+    dialog.style.setProperty(
+        "--dialog-close-transform",
+        style.transform
+    );
+
+    dialog.style.setProperty(
+        "--dialog-close-opacity",
+        style.opacity
+    );
+
     dialog.classList.add("is-closing");
-    fallback = window.setTimeout(finish, 700);
+
+    dialogBackdrop.classList.remove(
+        "is-visible"
+    );
+
+    dialogBackdrop.classList.add(
+        "is-closing"
+    );
+
+    let finished = false;
+
+    function finishDialog() {
+        if (finished) return;
+
+        finished = true;
+
+        dialog.close();
+        dialog.removeAttribute("aria-modal");
+        dialog.classList.remove("is-closing");
+
+        dialog.style.removeProperty(
+            "--dialog-close-transform"
+        );
+
+        dialog.style.removeProperty(
+            "--dialog-close-opacity"
+        );
+
+        if (activeDialog === dialog) {
+            activeDialog = null;
+        }
+    }
+
+    function onDialogEnd(event) {
+        if (
+            event.target === dialog &&
+            event.animationName ===
+                "dialog-disappear"
+        ) {
+            dialog.removeEventListener(
+                "animationend",
+                onDialogEnd
+            );
+
+            finishDialog();
+        }
+    }
+
+    dialog.addEventListener(
+        "animationend",
+        onDialogEnd
+    );
+
+    window.setTimeout(
+        finishDialog,
+        600
+    );
+
+    window.setTimeout(
+        () => {
+            dialogBackdrop.classList.remove(
+                "is-closing"
+            );
+
+            dialogBackdrop.hidden = true;
+        },
+        650
+    );
 }
 
-document.querySelectorAll("dialog.calendar-dialog").forEach(dialog => {
-    bindOutsideDialogClose(dialog);
+dialogBackdrop.addEventListener(
+    "click",
+    () => {
+        if (activeDialog) {
+            closeDialogAnimated(
+                activeDialog
+            );
+        }
+    }
+);
 
-    dialog.addEventListener("cancel", event => {
-        event.preventDefault();
-        closeDialogAnimated(dialog);
-    });
-});
+document.addEventListener(
+    "keydown",
+    event => {
+        if (
+            event.key === "Escape" &&
+            activeDialog
+        ) {
+            event.preventDefault();
+
+            closeDialogAnimated(
+                activeDialog
+            );
+        }
+    }
+);
 
 /* MUSICA: SCELTA DISPONIBILE ANCHE A BUSTA CHIUSA */
 (() => {
