@@ -996,8 +996,16 @@
     border-radius: 50%;
     background: #ABA5F0;
     color: #FFFFFF;
-    font: 24px/1 Arial, Helvetica, sans-serif;
+    font-size: 0;
+    line-height: 1;
     cursor: pointer;
+}
+
+.calendar-close::before {
+    content: "×";
+    display: block;
+    font: 24px/1 Arial, Helvetica, sans-serif;
+    transform: translateY(-1px);
 }
 
 .calendar-close::after {
