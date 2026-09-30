@@ -918,18 +918,32 @@
     overscroll-behavior: contain;
 }
 
-.calendar-dialog::backdrop {
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1150;
     background: rgba(80, 65, 55, 0.18);
-    backdrop-filter: blur(7px);
-    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dialog-backdrop.is-visible {
+    animation: calendar-fade 650ms ease both;
+    pointer-events: auto;
+}
+
+.dialog-backdrop.is-closing {
+    animation: calendar-fade 650ms ease reverse both;
+    pointer-events: none;
 }
 
 .calendar-dialog[open] {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
     animation: calendar-appear 550ms cubic-bezier(.22, 1, .36, 1) both;
-}
-
-.calendar-dialog[open]::backdrop {
-    animation: calendar-fade 650ms ease both;
 }
 
 .calendar-paper {
@@ -1018,7 +1032,8 @@
 
 @media (prefers-reduced-motion: reduce) {
     .calendar-dialog[open],
-    .calendar-dialog[open]::backdrop {
+    .dialog-backdrop.is-visible,
+    .dialog-backdrop.is-closing {
         animation: none;
     }
 }
@@ -1103,9 +1118,6 @@
     animation: dialog-disappear 550ms cubic-bezier(.22, 1, .36, 1) both;
     pointer-events: none;
 }
-.calendar-dialog[open].is-closing::backdrop {
-    animation: calendar-fade 650ms ease reverse both;
-}
 @keyframes dialog-disappear {
     from {
         transform: var(--dialog-close-transform, scale(1));
@@ -1117,8 +1129,7 @@
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .calendar-dialog[open].is-closing,
-    .calendar-dialog[open].is-closing::backdrop {
+    .calendar-dialog[open].is-closing {
         animation: none;
     }
 }
@@ -1177,7 +1188,7 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 
 /* NOTA SEMPRE ACCESSIBILE, ANCHE SOPRA LA BUSTA */
 #musicToggle {
-    z-index: 2147483647;
+    z-index: 1300;
     pointer-events: auto;
 }
 .music-emoji { position: relative; display: block; font-size: 24px; line-height: 1; }
