@@ -504,7 +504,7 @@ function closeDialogAnimated(dialog) {
     }
     dialog.addEventListener("animationend", onEnd);
     dialog.classList.add("is-closing");
-    fallback = window.setTimeout(finish, 580);
+    fallback = window.setTimeout(finish, 700);
 }
 
 document.querySelectorAll("dialog.calendar-dialog").forEach(dialog => {
