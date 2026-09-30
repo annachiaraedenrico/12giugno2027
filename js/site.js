@@ -409,6 +409,7 @@ if (
     const parkingOpen = document.getElementById("parkingOpen");
     const parkingDialog = document.getElementById("parkingDialog");
     const parkingClose = document.getElementById("parkingClose");
+    const parkingBack = document.getElementById("parkingBack");
     const parkingGoogle = document.getElementById("parkingGoogle");
     const parkingWaze = document.getElementById("parkingWaze");
     const parkingApple = document.getElementById("parkingApple");
@@ -418,6 +419,7 @@ if (
     let previousFocus = null;
     let parkingCoordinates = null;
     let switchingToParking = false;
+    let switchingBackToPlace = false;
 
     document.querySelectorAll(".place-open").forEach(button => {
         button.addEventListener("click", () => {
@@ -460,6 +462,7 @@ if (
         parkingOpen &&
         parkingDialog &&
         parkingClose &&
+        parkingBack &&
         parkingGoogle &&
         parkingWaze &&
         parkingApple
@@ -496,12 +499,34 @@ if (
             });
         });
 
+        parkingBack.addEventListener("click", () => {
+            if (!parkingDialog.open || dialog.open) return;
+
+            switchingBackToPlace = true;
+
+            parkingDialog.close();
+            parkingDialog.removeAttribute("aria-modal");
+
+            activeDialog = dialog;
+            dialog.show();
+            dialog.setAttribute("aria-modal", "true");
+
+            requestAnimationFrame(() => {
+                parkingOpen.focus({ preventScroll: true });
+            });
+        });
+
         parkingClose.addEventListener(
             "click",
             () => closeDialogAnimated(parkingDialog)
         );
 
         parkingDialog.addEventListener("close", () => {
+            if (switchingBackToPlace) {
+                switchingBackToPlace = false;
+                return;
+            }
+
             if (previousFocus && previousFocus.isConnected) {
                 previousFocus.focus({ preventScroll: true });
             }
