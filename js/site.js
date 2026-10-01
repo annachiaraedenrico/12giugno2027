@@ -392,6 +392,8 @@ if (
     const controls = document.getElementById("ceremonyBookControls");
     const previousButton = document.getElementById("ceremonyPrev");
     const nextButton = document.getElementById("ceremonyNext");
+    const tapPrevious = document.getElementById("ceremonyTapPrev");
+    const tapNext = document.getElementById("ceremonyTapNext");
     const pageCount = document.getElementById("ceremonyPageCount");
 
     if (
@@ -403,6 +405,8 @@ if (
         !controls ||
         !previousButton ||
         !nextButton ||
+        !tapPrevious ||
+        !tapNext ||
         !pageCount
     ) {
         return;
@@ -421,8 +425,13 @@ if (
         pageCount.textContent =
             `${currentPage} / ${totalPages}`;
 
-        previousButton.disabled = currentPage <= 1;
-        nextButton.disabled = currentPage >= totalPages;
+        const atFirstPage = currentPage <= 1;
+        const atLastPage = currentPage >= totalPages;
+
+        previousButton.disabled = atFirstPage;
+        nextButton.disabled = atLastPage;
+        tapPrevious.disabled = atFirstPage;
+        tapNext.disabled = atLastPage;
     }
 
     async function buildBook() {
@@ -559,13 +568,18 @@ if (
         }
     });
 
-    previousButton.addEventListener("click", () => {
+    function goToPreviousPage() {
         if (pageFlip) pageFlip.flipPrev();
-    });
+    }
 
-    nextButton.addEventListener("click", () => {
+    function goToNextPage() {
         if (pageFlip) pageFlip.flipNext();
-    });
+    }
+
+    previousButton.addEventListener("click", goToPreviousPage);
+    nextButton.addEventListener("click", goToNextPage);
+    tapPrevious.addEventListener("click", goToPreviousPage);
+    tapNext.addEventListener("click", goToNextPage);
 
     close.addEventListener(
         "click",
