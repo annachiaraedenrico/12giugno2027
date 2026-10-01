@@ -1233,15 +1233,26 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
     content: none;
 }
 
-.parking-back svg {
-    width: 18px;
-    height: 18px;
+.parking-back-icon {
+    position: relative;
     display: block;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    width: 16px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+}
+
+.parking-back-icon::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-50%) rotate(45deg);
+    transform-origin: center;
 }
 
 .parking-distance {
