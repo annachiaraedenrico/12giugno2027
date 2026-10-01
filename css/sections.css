@@ -1216,13 +1216,13 @@
 .ceremony-zoom-controls {
     left: 25%;
 
-    gap: 8px;
+    gap: 4px;
 }
 
 .ceremony-page-controls {
     left: 75%;
 
-    gap: 16px;
+    gap: 22px;
 }
 
 .ceremony-page-count {
@@ -1234,11 +1234,11 @@
 }
 
 .ceremony-zoom-value {
-    min-width: 70px;
+    min-width: 52px;
 
     color: var(--muted);
 
-    font-size: 0.82rem;
+    font-size: 0.8rem;
 
     text-align: center;
 }
@@ -1307,7 +1307,10 @@
 }
 
 .ceremony-zoom-button {
-    font-size: 1.25rem;
+    width: 34px;
+    height: 34px;
+
+    font-size: 1.15rem;
     line-height: 1;
 }
 
@@ -1353,11 +1356,11 @@
     }
 
     .ceremony-zoom-controls {
-        gap: 5px;
+        gap: 3px;
     }
 
     .ceremony-page-controls {
-        gap: 12px;
+        gap: 16px;
     }
 
     .ceremony-page-button {
@@ -1366,8 +1369,8 @@
     }
 
     .ceremony-zoom-value {
-        min-width: 48px;
-        font-size: 0.76rem;
+        min-width: 44px;
+        font-size: 0.74rem;
     }
 
     .ceremony-page-count {
