@@ -1233,25 +1233,17 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
     content: none;
 }
 
-.parking-back-icon {
-    position: relative;
+.parking-back .parking-back-svg {
     display: block;
-    width: 16px;
-    height: 2px;
-    background: currentColor;
-    border-radius: 2px;
-}
-
-.parking-back-icon::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    border-left: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-50%) rotate(45deg);
+    width: 20px !important;
+    height: 20px !important;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: rotate(90deg);
     transform-origin: center;
 }
 
