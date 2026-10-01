@@ -427,21 +427,25 @@
             </div>
 
             <div class="ceremony-book-controls" id="ceremonyBookControls" hidden>
-                <button class="ceremony-page-button ceremony-page-button-prev" id="ceremonyPrev" type="button" aria-label="Pagina precedente">
-                    <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
-                    </svg>
-                </button>
-                <span class="ceremony-page-count" id="ceremonyPageCount" aria-live="polite"></span>
-                <button class="ceremony-page-button ceremony-page-button-next" id="ceremonyNext" type="button" aria-label="Pagina successiva">
-                    <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
-                    </svg>
-                </button>
                 <div class="ceremony-zoom-controls" aria-label="Controlli zoom">
                     <button class="ceremony-page-button ceremony-zoom-button" id="ceremonyZoomOut" type="button" aria-label="Riduci zoom">−</button>
                     <span class="ceremony-zoom-value" id="ceremonyZoomValue" aria-live="polite">100%</span>
                     <button class="ceremony-page-button ceremony-zoom-button" id="ceremonyZoomIn" type="button" aria-label="Aumenta zoom">+</button>
+                </div>
+
+                <span class="ceremony-page-count" id="ceremonyPageCount" aria-live="polite"></span>
+
+                <div class="ceremony-page-controls" aria-label="Controlli pagina">
+                    <button class="ceremony-page-button ceremony-page-button-prev" id="ceremonyPrev" type="button" aria-label="Pagina precedente">
+                        <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
+                        </svg>
+                    </button>
+                    <button class="ceremony-page-button ceremony-page-button-next" id="ceremonyNext" type="button" aria-label="Pagina successiva">
+                        <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
