@@ -1230,8 +1230,18 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 }
 
 .parking-back::before {
-    content: "←";
-    font-size: 20px;
+    content: none;
+}
+
+.parking-back svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .parking-distance {
