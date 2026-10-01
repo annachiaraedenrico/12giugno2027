@@ -1253,3 +1253,20 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
     font-size: 0.95rem !important;
     line-height: 1.5;
 }
+
+
+.parking-close-icon::before {
+    content: none;
+}
+
+.parking-close-icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
