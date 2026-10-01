@@ -691,17 +691,17 @@
 
 
 /* =======================================================
-   FIAT 500 - DECORAZIONE FINALE
+   VESPA E FIAT 500 - DECORAZIONI FINALI
 ======================================================= */
 
-.footer-500 {
+.footer-vehicles {
     position: relative;
 
     width: 100%;
 
     display: flex;
 
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: flex-end;
 
     padding:
@@ -717,14 +717,28 @@
 }
 
 
+.footer-vespa,
+.footer-500 {
+    display: flex;
+    align-items: flex-end;
+
+    pointer-events: none;
+}
+
+
+.footer-vespa {
+    justify-content: flex-start;
+}
+
+
+.footer-500 {
+    justify-content: flex-end;
+}
+
+
+.footer-vespa img,
 .footer-500 img {
     display: block;
-
-    width:
-        min(
-            45vw,
-            700px
-        );
 
     max-width: 100%;
 
@@ -737,6 +751,24 @@
     user-select: none;
 
     -webkit-user-drag: none;
+}
+
+
+.footer-vespa img {
+    width:
+        min(
+            30vw,
+            460px
+        );
+}
+
+
+.footer-500 img {
+    width:
+        min(
+            45vw,
+            700px
+        );
 }
 
 
@@ -872,11 +904,16 @@
     }
 
 
-    .footer-500 {
+    .footer-vehicles {
         padding:
             0
             18px
             24px;
+    }
+
+
+    .footer-vespa img {
+        width: 34vw;
     }
 
 
