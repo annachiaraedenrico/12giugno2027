@@ -387,364 +387,76 @@ if (
     const button = document.getElementById("ceremonyOpen");
     const dialog = document.getElementById("ceremonyDialog");
     const close = document.getElementById("ceremonyClose");
-    const shell = document.getElementById("ceremonyBookShell");
-    const zoomLayer = document.getElementById("ceremonyZoomLayer");
-    const book = document.getElementById("ceremonyBook");
-    const loading = document.getElementById("ceremonyLoading");
-    const controls = document.getElementById("ceremonyBookControls");
-    const previousButton = document.getElementById("ceremonyPrev");
-    const nextButton = document.getElementById("ceremonyNext");
-    const pageCount = document.getElementById("ceremonyPageCount");
-    const zoomOutButton = document.getElementById("ceremonyZoomOut");
-    const zoomInButton = document.getElementById("ceremonyZoomIn");
-    const zoomValue = document.getElementById("ceremonyZoomValue");
+    const pdfFrame = document.getElementById("ceremonyPdf");
 
     if (
         !button ||
         !dialog ||
         !close ||
-        !shell ||
-        !zoomLayer ||
-        !book ||
-        !loading ||
-        !controls ||
-        !previousButton ||
-        !nextButton ||
-        !pageCount ||
-        !zoomOutButton ||
-        !zoomInButton ||
-        !zoomValue
+        !pdfFrame
     ) {
         return;
     }
 
     let previousFocus = null;
-    let pageFlip = null;
-    let bookPromise = null;
-    let totalPages = 0;
+    let pdfLoaded = false;
 
-    const minZoom = 1;
-    const maxZoom = 2.5;
-    const zoomStep = 0.25;
-
-    let zoom = 1;
-    let pinchStartDistance = 0;
-    let pinchStartZoom = 1;
-    let isPinching = false;
-
-    let pointerDownX = 0;
-    let pointerDownY = 0;
-    let pointerMoved = false;
-    let pointerDownPage = 0;
-    let pointerDownRatio = 0;
-
-    let panX = 0;
-    let panY = 0;
-    let panStartX = 0;
-    let panStartY = 0;
-    let panOriginX = 0;
-    let panOriginY = 0;
-    let isPanning = false;
-    let activePointerId = null;
-
-    function clampZoom(value) {
-        return Math.min(
-            maxZoom,
-            Math.max(minZoom, value)
-        );
-    }
-
-    function clampPan() {
-        if (zoom <= 1) {
-            panX = 0;
-            panY = 0;
-            return;
-        }
-
-        const maxX =
-            shell.clientWidth *
-            (zoom - 1) /
-            2;
-
-        const maxY =
-            shell.clientHeight *
-            (zoom - 1) /
-            2;
-
-        panX =
-            Math.max(
-                -maxX,
-                Math.min(maxX, panX)
+    function fadeOutWeddingMusic() {
+        const weddingMusic =
+            document.getElementById(
+                "weddingMusic"
             );
 
-        panY =
-            Math.max(
-                -maxY,
-                Math.min(maxY, panY)
-            );
-    }
+        if (!weddingMusic) return;
 
-    function applyBookTransform() {
-        clampPan();
+        const fadeDuration = 1200;
+        const startVolume =
+            weddingMusic.volume;
 
-        zoomLayer.style.transform =
-            `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
-    }
-
-    function updatePageFlipCanvasQuality() {
         if (
-            !pageFlip ||
-            !pageFlip.ui ||
-            !pageFlip.getRender
+            weddingMusic.paused ||
+            startVolume <= 0
         ) {
+            weddingMusic.pause();
             return;
         }
 
-        const render =
-            pageFlip.getRender();
+        const fadeStart =
+            performance.now();
 
-        const canvas =
-            render && render.canvas;
-
-        if (!canvas) {
-            return;
-        }
-
-        const deviceScale =
-            Math.min(
-                window.devicePixelRatio || 1,
-                3
-            );
-
-        const renderScale =
-            Math.min(
-                4,
-                Math.max(
+        function fadeMusic(timestamp) {
+            const progress =
+                Math.min(
                     1,
-                    deviceScale * zoom
-                )
-            );
-
-        canvas.dataset.renderScale =
-            String(renderScale);
-
-        pageFlip.ui.update();
-    }
-
-    function applyZoom(value) {
-        zoom = clampZoom(value);
-
-        if (zoom <= 1) {
-            panX = 0;
-            panY = 0;
-        }
-
-        applyBookTransform();
-        updatePageFlipCanvasQuality();
-
-        zoomValue.textContent =
-            `${Math.round(zoom * 100)}%`;
-
-        zoomOutButton.disabled =
-            zoom <= minZoom + 0.001;
-
-        zoomInButton.disabled =
-            zoom >= maxZoom - 0.001;
-    }
-
-    function touchDistance(touches) {
-        const dx =
-            touches[0].clientX -
-            touches[1].clientX;
-
-        const dy =
-            touches[0].clientY -
-            touches[1].clientY;
-
-        return Math.hypot(dx, dy);
-    }
-
-    function updatePageCounter() {
-        if (!pageFlip || totalPages === 0) return;
-
-        const currentPage =
-            pageFlip.getCurrentPageIndex() + 1;
-
-        pageCount.textContent =
-            `${currentPage} / ${totalPages}`;
-
-        previousButton.disabled =
-            currentPage <= 1;
-
-        nextButton.disabled =
-            currentPage >= totalPages;
-    }
-
-    async function buildBook() {
-        if (pageFlip) return;
-
-        if (
-            !window.pdfjsLib ||
-            !window.St ||
-            !window.St.PageFlip
-        ) {
-            throw new Error(
-                "Librerie del libretto non disponibili."
-            );
-        }
-
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
-
-        const pdf = await window.pdfjsLib
-            .getDocument(
-                "documenti/libretto-messa.pdf"
-            )
-            .promise;
-
-        totalPages = pdf.numPages;
-
-        const images = [];
-
-        for (
-            let pageNumber = 1;
-            pageNumber <= totalPages;
-            pageNumber += 1
-        ) {
-            loading.textContent =
-                `Caricamento del libretto… ${pageNumber} / ${totalPages}`;
-
-            const page =
-                await pdf.getPage(pageNumber);
-
-            const initialViewport =
-                page.getViewport({ scale: 1 });
-
-            const deviceScale =
-                Math.min(
-                    window.devicePixelRatio || 1,
-                    2
+                    (
+                        timestamp -
+                        fadeStart
+                    ) /
+                    fadeDuration
                 );
 
-            const targetWidth =
-                Math.min(
-                    Math.max(
-                        window.innerWidth *
-                        maxZoom *
-                        deviceScale,
-                        1800
-                    ),
-                    3200
+            weddingMusic.volume =
+                startVolume *
+                (1 - progress);
+
+            if (progress < 1) {
+                requestAnimationFrame(
+                    fadeMusic
                 );
-
-            const scale =
-                targetWidth /
-                initialViewport.width;
-
-            const viewport =
-                page.getViewport({ scale });
-
-            const canvas =
-                document.createElement("canvas");
-
-            const context =
-                canvas.getContext(
-                    "2d",
-                    { alpha: false }
-                );
-
-            canvas.width =
-                Math.ceil(viewport.width);
-
-            canvas.height =
-                Math.ceil(viewport.height);
-
-            await page.render({
-                canvasContext: context,
-                viewport
-            }).promise;
-
-            images.push(
-                canvas.toDataURL(
-                    "image/png"
-                )
-            );
-        }
-
-        const firstPage =
-            await pdf.getPage(1);
-
-        const firstViewport =
-            firstPage.getViewport({ scale: 1 });
-
-        const pageRatio =
-            firstViewport.height /
-            firstViewport.width;
-
-        const availableHeight =
-            Math.min(
-                window.innerHeight * 0.68,
-                820
-            );
-
-        const pageHeight =
-            Math.max(
-                360,
-                Math.round(availableHeight)
-            );
-
-        const pageWidth =
-            Math.max(
-                250,
-                Math.round(
-                    pageHeight /
-                    pageRatio
-                )
-            );
-
-        pageFlip =
-            new window.St.PageFlip(
-                book,
-                {
-                    width: pageWidth,
-                    height: pageHeight,
-                    size: "stretch",
-                    minWidth: 250,
-                    maxWidth: 620,
-                    minHeight: 350,
-                    maxHeight: 900,
-                    maxShadowOpacity: 0.35,
-                    showCover: false,
-                    mobileScrollSupport: false,
-                    usePortrait: true,
-                    autoSize: true,
-                    drawShadow: true,
-                    flippingTime: 800,
-                    startPage: 0,
-
-                    // Lo sfoglio tramite drag/swipe di PageFlip è disattivato:
-                    // si cambia pagina solo con tap laterale o frecce.
-                    useMouseEvents: false
-                }
-            );
-
-        pageFlip.loadFromImages(
-            images
-        );
-
-        pageFlip.on(
-            "flip",
-            () => {
-                updatePageCounter();
-                updatePageFlipCanvasQuality();
+                return;
             }
+
+            weddingMusic.pause();
+
+            // Ripristina il volume per un'eventuale
+            // riattivazione manuale successiva.
+            weddingMusic.volume =
+                startVolume;
+        }
+
+        requestAnimationFrame(
+            fadeMusic
         );
-
-        loading.hidden = true;
-        controls.hidden = false;
-
-        updatePageCounter();
-        applyZoom(1);
     }
 
     button.addEventListener(
@@ -752,387 +464,19 @@ if (
         () => {
             if (dialog.open) return;
 
-            const weddingMusic =
-                document.getElementById(
-                    "weddingMusic"
-                );
-
-            if (weddingMusic) {
-                const fadeDuration = 1200;
-                const startVolume = weddingMusic.volume;
-
-                if (
-                    !weddingMusic.paused &&
-                    startVolume > 0
-                ) {
-                    const fadeStart =
-                        performance.now();
-
-                    function fadeMusic(timestamp) {
-                        const progress =
-                            Math.min(
-                                1,
-                                (
-                                    timestamp -
-                                    fadeStart
-                                ) /
-                                fadeDuration
-                            );
-
-                        weddingMusic.volume =
-                            startVolume *
-                            (1 - progress);
-
-                        if (progress < 1) {
-                            requestAnimationFrame(
-                                fadeMusic
-                            );
-                            return;
-                        }
-
-                        weddingMusic.pause();
-
-                        // Ripristina il volume per un'eventuale
-                        // riattivazione manuale successiva.
-                        weddingMusic.volume =
-                            startVolume;
-                    }
-
-                    requestAnimationFrame(
-                        fadeMusic
-                    );
-                } else {
-                    weddingMusic.pause();
-                }
-            }
+            fadeOutWeddingMusic();
 
             previousFocus =
                 document.activeElement;
 
+            if (!pdfLoaded) {
+                pdfFrame.src =
+                    pdfFrame.dataset.src;
+
+                pdfLoaded = true;
+            }
+
             openDialogAnimated(dialog);
-
-            if (!bookPromise) {
-                bookPromise =
-                    buildBook().catch(
-                        error => {
-                            console.error(
-                                error
-                            );
-
-                            loading.textContent =
-                                "Non è stato possibile caricare il libretto. Usa il link qui sotto per aprire il PDF.";
-
-                            controls.hidden = true;
-
-                            bookPromise = null;
-                        }
-                    );
-            }
-        }
-    );
-
-    function goToPreviousPage() {
-        if (pageFlip) {
-            pageFlip.flipPrev();
-        }
-    }
-
-    function goToNextPage() {
-        if (pageFlip) {
-            pageFlip.flipNext();
-        }
-    }
-
-    previousButton.addEventListener(
-        "click",
-        goToPreviousPage
-    );
-
-    nextButton.addEventListener(
-        "click",
-        goToNextPage
-    );
-
-    zoomOutButton.addEventListener(
-        "click",
-        () => applyZoom(
-            zoom - zoomStep
-        )
-    );
-
-    zoomInButton.addEventListener(
-        "click",
-        () => applyZoom(
-            zoom + zoomStep
-        )
-    );
-
-    /*
-     * Il tap sul 20% sinistro/destra è gestito sul contenitore.
-     * Gli eventi drag/swipe di PageFlip sono disattivati: un movimento
-     * non cambia pagina e resta libero per l'interazione con lo zoom.
-     */
-    shell.addEventListener(
-        "pointerdown",
-        event => {
-            if (isPinching) {
-                return;
-            }
-
-            pointerDownX = event.clientX;
-            pointerDownY = event.clientY;
-            pointerMoved = false;
-
-            const rect =
-                shell.getBoundingClientRect();
-
-            pointerDownRatio =
-                (
-                    event.clientX -
-                    rect.left
-                ) /
-                rect.width;
-
-            pointerDownPage =
-                pageFlip
-                    ? pageFlip.getCurrentPageIndex()
-                    : 0;
-
-            if (
-                zoom > 1 &&
-                activePointerId === null
-            ) {
-                activePointerId =
-                    event.pointerId;
-
-                isPanning = true;
-
-                panStartX =
-                    event.clientX;
-
-                panStartY =
-                    event.clientY;
-
-                panOriginX = panX;
-                panOriginY = panY;
-
-                if (
-                    shell.setPointerCapture
-                ) {
-                    try {
-                        shell.setPointerCapture(
-                            event.pointerId
-                        );
-                    } catch {
-                        // Nessuna azione necessaria.
-                    }
-                }
-            }
-        },
-        true
-    );
-
-    shell.addEventListener(
-        "pointermove",
-        event => {
-            const distance =
-                Math.hypot(
-                    event.clientX - pointerDownX,
-                    event.clientY - pointerDownY
-                );
-
-            if (distance > 8) {
-                pointerMoved = true;
-            }
-
-            if (
-                !isPanning ||
-                isPinching ||
-                zoom <= 1 ||
-                event.pointerId !==
-                    activePointerId
-            ) {
-                return;
-            }
-
-            panX =
-                panOriginX +
-                (
-                    event.clientX -
-                    panStartX
-                );
-
-            panY =
-                panOriginY +
-                (
-                    event.clientY -
-                    panStartY
-                );
-
-            applyBookTransform();
-
-            event.preventDefault();
-        },
-        true
-    );
-
-    shell.addEventListener(
-        "pointerup",
-        event => {
-            if (
-                event.pointerId ===
-                    activePointerId
-            ) {
-                isPanning = false;
-                activePointerId = null;
-            }
-
-            if (
-                !pageFlip ||
-                pointerMoved ||
-                isPinching
-            ) {
-                return;
-            }
-
-            const targetPage =
-                pointerDownPage;
-
-            const targetRatio =
-                pointerDownRatio;
-
-            if (
-                pageFlip.getCurrentPageIndex() !==
-                    targetPage
-            ) {
-                return;
-            }
-
-            if (targetRatio <= 0.20) {
-                goToPreviousPage();
-            } else if (
-                targetRatio >= 0.80
-            ) {
-                goToNextPage();
-            }
-        },
-        true
-    );
-
-    shell.addEventListener(
-        "pointercancel",
-        event => {
-            if (
-                event.pointerId ===
-                    activePointerId
-            ) {
-                isPanning = false;
-                activePointerId = null;
-            }
-        },
-        true
-    );
-
-    /*
-     * Pinch-to-zoom: con due dita il gesto viene riservato allo zoom.
-     * Con un solo dito non viene avviato alcuno sfoglio tramite drag:
-     * restano attivi il tap laterale e i pulsanti di navigazione.
-     */
-    shell.addEventListener(
-        "touchstart",
-        event => {
-            if (event.touches.length !== 2) {
-                return;
-            }
-
-            isPinching = true;
-            isPanning = false;
-            activePointerId = null;
-
-            pinchStartDistance =
-                touchDistance(
-                    event.touches
-                );
-
-            pinchStartZoom = zoom;
-
-            event.preventDefault();
-        },
-        {
-            passive: false,
-            capture: true
-        }
-    );
-
-    shell.addEventListener(
-        "touchmove",
-        event => {
-            if (
-                !isPinching ||
-                event.touches.length !== 2
-            ) {
-                return;
-            }
-
-            const distance =
-                touchDistance(
-                    event.touches
-                );
-
-            if (
-                pinchStartDistance <= 0
-            ) {
-                return;
-            }
-
-            applyZoom(
-                pinchStartZoom *
-                (
-                    distance /
-                    pinchStartDistance
-                )
-            );
-
-            event.preventDefault();
-        },
-        {
-            passive: false,
-            capture: true
-        }
-    );
-
-    function finishPinch() {
-        if (!isPinching) return;
-
-        isPinching = false;
-        pinchStartDistance = 0;
-
-        applyBookTransform();
-        updatePageFlipCanvasQuality();
-
-        window.setTimeout(
-            () => {
-                pointerMoved = false;
-            },
-            0
-        );
-    }
-
-    shell.addEventListener(
-        "touchend",
-        finishPinch,
-        {
-            passive: true,
-            capture: true
-        }
-    );
-
-    shell.addEventListener(
-        "touchcancel",
-        finishPinch,
-        {
-            passive: true,
-            capture: true
         }
     );
 
