@@ -422,10 +422,6 @@ if (
     let pageFlip = null;
     let bookPromise = null;
     let totalPages = 0;
-    let pdfDocument = null;
-    let pageImages = [];
-    let qualityTimer = null;
-    let qualityGeneration = 0;
 
     const minZoom = 1;
     const maxZoom = 2.5;
@@ -535,118 +531,6 @@ if (
         pageFlip.ui.update();
     }
 
-    async function rerenderCurrentPageHighQuality() {
-        if (
-            !pageFlip ||
-            !pdfDocument ||
-            pageImages.length === 0
-        ) {
-            return;
-        }
-
-        const generation =
-            ++qualityGeneration;
-
-        const pageIndex =
-            pageFlip.getCurrentPageIndex();
-
-        const page =
-            await pdfDocument.getPage(
-                pageIndex + 1
-            );
-
-        const initialViewport =
-            page.getViewport({ scale: 1 });
-
-        const deviceScale =
-            Math.min(
-                window.devicePixelRatio || 1,
-                3
-            );
-
-        const targetWidth =
-            Math.min(
-                4200,
-                Math.max(
-                    1600,
-                    shell.clientWidth *
-                    zoom *
-                    deviceScale *
-                    1.35
-                )
-            );
-
-        const viewport =
-            page.getViewport({
-                scale:
-                    targetWidth /
-                    initialViewport.width
-            });
-
-        const canvas =
-            document.createElement("canvas");
-
-        const context =
-            canvas.getContext(
-                "2d",
-                { alpha: false }
-            );
-
-        canvas.width =
-            Math.ceil(viewport.width);
-
-        canvas.height =
-            Math.ceil(viewport.height);
-
-        await page.render({
-            canvasContext: context,
-            viewport
-        }).promise;
-
-        if (
-            generation !==
-            qualityGeneration
-        ) {
-            return;
-        }
-
-        pageImages[pageIndex] =
-            canvas.toDataURL(
-                "image/png"
-            );
-
-        pageFlip.updateFromImages(
-            pageImages
-        );
-
-        updatePageCounter();
-        updatePageFlipCanvasQuality();
-    }
-
-    function scheduleHighQualityRender(
-        delay = 140
-    ) {
-        window.clearTimeout(
-            qualityTimer
-        );
-
-        qualityTimer =
-            window.setTimeout(
-                () => {
-                    rerenderCurrentPageHighQuality()
-                        .catch(
-                            error => {
-                                console.error(
-                                    "Rendering HD libretto:",
-                                    error
-                                );
-                            }
-                        );
-                },
-                delay
-            );
-    }
-
     function applyZoom(value) {
         zoom = clampZoom(value);
 
@@ -657,7 +541,6 @@ if (
 
         applyBookTransform();
         updatePageFlipCanvasQuality();
-        scheduleHighQualityRender();
 
         zoomValue.textContent =
             `${Math.round(zoom * 100)}%`;
@@ -719,7 +602,6 @@ if (
             )
             .promise;
 
-        pdfDocument = pdf;
         totalPages = pdf.numPages;
 
         const images = [];
@@ -846,19 +728,15 @@ if (
                 }
             );
 
-        pageImages = images.slice();
-
         pageFlip.loadFromImages(
-            pageImages
+            images
         );
 
         pageFlip.on(
             "flip",
             () => {
                 updatePageCounter();
-                scheduleHighQualityRender(
-                    60
-                );
+                updatePageFlipCanvasQuality();
             }
         );
 
@@ -867,9 +745,6 @@ if (
 
         updatePageCounter();
         applyZoom(1);
-        scheduleHighQualityRender(
-            0
-        );
     }
 
     button.addEventListener(
@@ -1234,9 +1109,6 @@ if (
 
         applyBookTransform();
         updatePageFlipCanvasQuality();
-        scheduleHighQualityRender(
-            20
-        );
 
         window.setTimeout(
             () => {
