@@ -406,6 +406,59 @@
         </div>
     </dialog>
 
+    <!-- LIBRETTO CERIMONIA -->
+    <dialog class="calendar-dialog ceremony-dialog" id="ceremonyDialog" aria-labelledby="ceremonyTitle">
+        <div class="calendar-paper ceremony-paper">
+            <button class="calendar-close" id="ceremonyClose" type="button"
+                    aria-label="Chiudi libretto della cerimonia" autofocus>
+                <svg class="calendar-close-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M6 6L18 18M18 6L6 18"></path>
+                </svg>
+            </button>
+
+            <h2 id="ceremonyTitle"><em>Libretto della cerimonia 📖</em></h2>
+
+            <div class="ceremony-pdf-stage" id="ceremonyPdfStage">
+                <div class="ceremony-pdf-loading" id="ceremonyPdfLoading" role="status">
+                    Caricamento del libretto…
+                </div>
+                <div class="ceremony-pdf-pan" id="ceremonyPdfPan">
+                    <canvas class="ceremony-pdf-canvas" id="ceremonyPdfCanvas" aria-label="Pagina del libretto"></canvas>
+                </div>
+            </div>
+
+            <div class="ceremony-pdf-controls" id="ceremonyPdfControls" hidden>
+                <div class="ceremony-pdf-zoom" aria-label="Controlli zoom">
+                    <button class="ceremony-pdf-button" id="ceremonyPdfZoomOut" type="button" aria-label="Riduci zoom">−</button>
+                    <span class="ceremony-pdf-zoom-value" id="ceremonyPdfZoomValue" aria-live="polite">100%</span>
+                    <button class="ceremony-pdf-button" id="ceremonyPdfZoomIn" type="button" aria-label="Aumenta zoom">+</button>
+                </div>
+
+                <span class="ceremony-pdf-page-count" id="ceremonyPdfPageCount" aria-live="polite"></span>
+
+                <div class="ceremony-pdf-pages" aria-label="Controlli pagina">
+                    <button class="ceremony-pdf-button ceremony-pdf-arrow ceremony-pdf-arrow-prev" id="ceremonyPdfPrev" type="button" aria-label="Pagina precedente">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
+                        </svg>
+                    </button>
+                    <button class="ceremony-pdf-button ceremony-pdf-arrow ceremony-pdf-arrow-next" id="ceremonyPdfNext" type="button" aria-label="Pagina successiva">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <a class="ceremony-external"
+               href="documenti/libretto-messa.pdf"
+               target="_blank"
+               rel="noopener noreferrer">
+                Apri il PDF in una nuova pagina
+            </a>
+        </div>
+    </dialog>
+
     <!-- CONFERMA PRESENZA -->
     <dialog class="calendar-dialog rsvp-dialog" id="rsvpDialog" aria-labelledby="rsvpTitle">
         <div class="calendar-paper rsvp-paper">
@@ -521,6 +574,7 @@
     <!-- SCRIPT -->
     <script src="js/envelope.js"></script>
     <script src="js/countdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script src="js/site.js"></script>
     <script src="js/hero.js"></script>
 </body>
