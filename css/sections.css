@@ -1001,12 +1001,20 @@
 }
 
 .calendar-close::before {
-    content: "×";
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    font: 24px/1 "Lora", serif;
+    content: none;
+}
+
+.calendar-close .calendar-close-svg,
+.calendar-close > svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .calendar-close::after {
@@ -1254,19 +1262,3 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
     line-height: 1.5;
 }
 
-
-.parking-close-icon::before {
-    content: none;
-}
-
-.parking-close-icon svg {
-    display: block;
-    width: 20px;
-    height: 20px;
-    overflow: visible;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.25;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
