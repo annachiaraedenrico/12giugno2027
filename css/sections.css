@@ -1095,7 +1095,7 @@
 
 /* LIBRETTO CERIMONIA NEL POPUP */
 .ceremony-dialog {
-    width: min(760px, calc(100% - 16px));
+    width: min(920px, calc(100% - 16px));
 }
 
 .ceremony-paper {
@@ -1107,221 +1107,27 @@
     animation: rsvp-appear 550ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
-.ceremony-book-shell {
-    position: relative;
-
+.ceremony-pdf-shell {
     width: 100%;
-    height:
-        min(
-            68vh,
-            820px
-        );
-    height:
-        min(
-            68dvh,
-            820px
-        );
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
+    height: min(72vh, 860px);
+    height: min(72dvh, 860px);
 
     overflow: hidden;
 
-    touch-action: none;
-    overscroll-behavior: contain;
+    border-radius: 8px;
 
-    cursor: default;
+    background: #f3f3f3;
 }
 
-.ceremony-book-shell:has(.ceremony-zoom-layer[style*="scale(1."]) {
-    cursor: grab;
-}
-
-.ceremony-zoom-layer {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    transform: scale(1);
-    transform-origin: center center;
-
-    will-change: transform;
-}
-
-.ceremony-book {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    overflow: visible;
-}
-
-.ceremony-book .stf__parent {
-    margin: 0 auto !important;
-}
-
-.ceremony-loading {
-    position: absolute;
-    inset: 0;
-
-    display: grid;
-
-    place-items: center;
-
-    padding: 24px;
-
-    color: var(--muted);
-
-    font-size: 0.95rem;
-    line-height: 1.5;
-
-    text-align: center;
-}
-
-.ceremony-loading[hidden] {
-    display: none;
-}
-
-.ceremony-book-controls {
-    position: relative;
-
-    width: 100%;
-    height: 38px;
-
-    margin-top: 12px;
-}
-
-.ceremony-zoom-controls,
-.ceremony-page-controls {
-    position: absolute;
-    top: 50%;
-
-    display: flex;
-
-    align-items: center;
-
-    transform: translate(-50%, -50%);
-}
-
-.ceremony-zoom-controls {
-    left: 25%;
-
-    gap: 4px;
-}
-
-.ceremony-page-controls {
-    left: 75%;
-
-    gap: 22px;
-}
-
-.ceremony-page-count {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-
-    transform: translate(-50%, -50%);
-}
-
-.ceremony-zoom-value {
-    min-width: 52px;
-
-    color: var(--muted);
-
-    font-size: 0.8rem;
-
-    text-align: center;
-}
-
-.ceremony-book-controls[hidden] {
-    display: none;
-}
-
-.ceremony-page-button {
-    display: grid;
-
-    place-items: center;
-
-    width: 38px;
-    height: 38px;
-
-    padding: 0;
-
-    border:
-        1px solid
-        #ABA5F0;
-
-    border-radius: 50%;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.90
-        );
-
-    color: #8176B8;
-
-    cursor: pointer;
-}
-
-.ceremony-page-arrow {
+.ceremony-pdf {
     display: block;
 
-    width: 20px;
-    height: 20px;
+    width: 100%;
+    height: 100%;
 
-    overflow: visible;
+    border: 0;
 
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.25;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-
-    transform-origin: center;
-}
-
-.ceremony-page-button-prev .ceremony-page-arrow {
-    transform: rotate(90deg);
-}
-
-.ceremony-page-button-next .ceremony-page-arrow {
-    transform: rotate(-90deg);
-}
-
-.ceremony-page-button:disabled {
-    opacity: 0.35;
-    cursor: default;
-}
-
-.ceremony-zoom-button {
-    width: 34px;
-    height: 34px;
-
-    font-size: 1.15rem;
-    line-height: 1;
-}
-
-.ceremony-page-count {
-    min-width: 64px;
-
-    color: var(--muted);
-
-    font-size: 0.85rem;
-
-    text-align: center;
+    background: #fff;
 }
 
 .ceremony-external {
@@ -1347,35 +1153,8 @@
             14px;
     }
 
-    .ceremony-book-shell {
-        height:
-            min(
-                70dvh,
-                720px
-            );
-    }
-
-    .ceremony-zoom-controls {
-        gap: 3px;
-    }
-
-    .ceremony-page-controls {
-        gap: 16px;
-    }
-
-    .ceremony-page-button {
-        width: 34px;
-        height: 34px;
-    }
-
-    .ceremony-zoom-value {
-        min-width: 44px;
-        font-size: 0.74rem;
-    }
-
-    .ceremony-page-count {
-        min-width: 48px;
-        font-size: 0.78rem;
+    .ceremony-pdf-shell {
+        height: min(74dvh, 760px);
     }
 }
 
@@ -1384,7 +1163,6 @@
         animation: none;
     }
 }
-
 
 /* GOOGLE FORMS NEL CARTONCINO */
 .rsvp-dialog {
