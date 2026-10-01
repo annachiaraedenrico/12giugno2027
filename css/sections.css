@@ -1189,35 +1189,44 @@
 }
 
 .ceremony-book-controls {
+    position: relative;
+
+    width: 100%;
+    height: 38px;
+
     margin-top: 12px;
-
-    display: grid;
-
-    grid-template-columns:
-        1fr
-        auto
-        1fr;
-
-    align-items: center;
-
-    gap: 12px;
 }
 
 .ceremony-zoom-controls,
 .ceremony-page-controls {
+    position: absolute;
+    top: 50%;
+
     display: flex;
 
     align-items: center;
 
-    gap: 8px;
+    transform: translate(-50%, -50%);
 }
 
 .ceremony-zoom-controls {
-    justify-content: flex-start;
+    left: 25%;
+
+    gap: 8px;
 }
 
 .ceremony-page-controls {
-    justify-content: flex-end;
+    left: 75%;
+
+    gap: 16px;
+}
+
+.ceremony-page-count {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
 }
 
 .ceremony-zoom-value {
@@ -1339,13 +1348,12 @@
             );
     }
 
-    .ceremony-book-controls {
-        gap: 6px;
+    .ceremony-zoom-controls {
+        gap: 5px;
     }
 
-    .ceremony-zoom-controls,
     .ceremony-page-controls {
-        gap: 5px;
+        gap: 12px;
     }
 
     .ceremony-page-button {
