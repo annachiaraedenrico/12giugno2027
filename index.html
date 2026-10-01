@@ -417,15 +417,13 @@
             </button>
             <h2 id="ceremonyTitle"><em>Libretto della cerimonia 📖</em></h2>
 
-            <div class="ceremony-book-shell">
+            <div class="ceremony-book-shell" id="ceremonyBookShell">
                 <div class="ceremony-loading" id="ceremonyLoading" role="status">
                     Caricamento del libretto…
                 </div>
-                <div class="ceremony-book" id="ceremonyBook" aria-label="Libretto della cerimonia"></div>
-                <button class="ceremony-tap-zone ceremony-tap-zone-prev" id="ceremonyTapPrev"
-                        type="button" aria-label="Pagina precedente"></button>
-                <button class="ceremony-tap-zone ceremony-tap-zone-next" id="ceremonyTapNext"
-                        type="button" aria-label="Pagina successiva"></button>
+                <div class="ceremony-zoom-layer" id="ceremonyZoomLayer">
+                    <div class="ceremony-book" id="ceremonyBook" aria-label="Libretto della cerimonia"></div>
+                </div>
             </div>
 
             <div class="ceremony-book-controls" id="ceremonyBookControls" hidden>
@@ -440,6 +438,11 @@
                         <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
                     </svg>
                 </button>
+                <div class="ceremony-zoom-controls" aria-label="Controlli zoom">
+                    <button class="ceremony-page-button ceremony-zoom-button" id="ceremonyZoomOut" type="button" aria-label="Riduci zoom">−</button>
+                    <span class="ceremony-zoom-value" id="ceremonyZoomValue" aria-live="polite">100%</span>
+                    <button class="ceremony-page-button ceremony-zoom-button" id="ceremonyZoomIn" type="button" aria-label="Aumenta zoom">+</button>
+                </div>
             </div>
 
             <a class="ceremony-external"
