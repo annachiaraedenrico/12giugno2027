@@ -535,6 +535,12 @@ if (
     button.addEventListener("click", () => {
         if (dialog.open) return;
 
+        const weddingMusic = document.getElementById("weddingMusic");
+
+        if (weddingMusic) {
+            weddingMusic.pause();
+        }
+
         previousFocus = document.activeElement;
         openDialogAnimated(dialog);
 
