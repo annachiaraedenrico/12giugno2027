@@ -435,6 +435,8 @@ if (
     let pointerDownX = 0;
     let pointerDownY = 0;
     let pointerMoved = false;
+    let pointerDownPage = 0;
+    let pointerDownRatio = 0;
 
     function clampZoom(value) {
         return Math.min(
@@ -776,6 +778,21 @@ if (
             pointerDownX = event.clientX;
             pointerDownY = event.clientY;
             pointerMoved = false;
+
+            const rect =
+                shell.getBoundingClientRect();
+
+            pointerDownRatio =
+                (
+                    event.clientX -
+                    rect.left
+                ) /
+                rect.width;
+
+            pointerDownPage =
+                pageFlip
+                    ? pageFlip.getCurrentPageIndex()
+                    : 0;
         },
         true
     );
@@ -796,8 +813,8 @@ if (
     );
 
     shell.addEventListener(
-        "click",
-        event => {
+        "pointerup",
+        () => {
             if (
                 !pageFlip ||
                 pointerMoved ||
@@ -806,20 +823,37 @@ if (
                 return;
             }
 
-            const rect =
-                shell.getBoundingClientRect();
+            const targetPage =
+                pointerDownPage;
 
-            const relativeX =
-                event.clientX - rect.left;
+            const targetRatio =
+                pointerDownRatio;
 
-            const ratio =
-                relativeX / rect.width;
+            /*
+             * Lascia prima a PageFlip la possibilità di gestire
+             * normalmente il tap. Se non ha cambiato pagina,
+             * applichiamo il nostro tap laterale 20%/20%.
+             */
+            window.setTimeout(
+                () => {
+                    if (
+                        !pageFlip ||
+                        pageFlip.getCurrentPageIndex() !==
+                            targetPage
+                    ) {
+                        return;
+                    }
 
-            if (ratio <= 0.20) {
-                goToPreviousPage();
-            } else if (ratio >= 0.80) {
-                goToNextPage();
-            }
+                    if (targetRatio <= 0.20) {
+                        goToPreviousPage();
+                    } else if (
+                        targetRatio >= 0.80
+                    ) {
+                        goToNextPage();
+                    }
+                },
+                80
+            );
         },
         true
     );
