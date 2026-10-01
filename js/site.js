@@ -382,6 +382,41 @@ if (
     });
 })();
 
+/* LIBRETTO CERIMONIA */
+(() => {
+    const button = document.getElementById("ceremonyOpen");
+    const dialog = document.getElementById("ceremonyDialog");
+    const close = document.getElementById("ceremonyClose");
+    const frame = document.getElementById("ceremonyFrame");
+
+    if (!button || !dialog || !close || !frame) return;
+
+    let previousFocus = null;
+
+    button.addEventListener("click", () => {
+        if (dialog.open) return;
+
+        previousFocus = document.activeElement;
+
+        if (!frame.hasAttribute("src")) {
+            frame.src = frame.dataset.src;
+        }
+
+        openDialogAnimated(dialog);
+    });
+
+    close.addEventListener(
+        "click",
+        () => closeDialogAnimated(dialog)
+    );
+
+    dialog.addEventListener("close", () => {
+        if (previousFocus && previousFocus.isConnected) {
+            previousFocus.focus({ preventScroll: true });
+        }
+    });
+})();
+
 /* CONFERMA PRESENZA */
 (() => {
     const button = document.getElementById("rsvpOpen");
