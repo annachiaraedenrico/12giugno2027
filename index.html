@@ -415,45 +415,24 @@
                     <path d="M6 6L18 18M18 6L6 18"></path>
                 </svg>
             </button>
+
             <h2 id="ceremonyTitle"><em>Libretto della cerimonia 📖</em></h2>
 
-            <div class="ceremony-book-shell" id="ceremonyBookShell">
-                <div class="ceremony-loading" id="ceremonyLoading" role="status">
-                    Caricamento del libretto…
-                </div>
-                <div class="ceremony-zoom-layer" id="ceremonyZoomLayer">
-                    <div class="ceremony-book" id="ceremonyBook" aria-label="Libretto della cerimonia"></div>
-                </div>
-            </div>
-
-            <div class="ceremony-book-controls" id="ceremonyBookControls" hidden>
-                <div class="ceremony-zoom-controls" aria-label="Controlli zoom">
-                    <button class="ceremony-page-button ceremony-zoom-button" id="ceremonyZoomOut" type="button" aria-label="Riduci zoom">−</button>
-                    <span class="ceremony-zoom-value" id="ceremonyZoomValue" aria-live="polite">100%</span>
-                    <button class="ceremony-page-button ceremony-zoom-button" id="ceremonyZoomIn" type="button" aria-label="Aumenta zoom">+</button>
-                </div>
-
-                <span class="ceremony-page-count" id="ceremonyPageCount" aria-live="polite"></span>
-
-                <div class="ceremony-page-controls" aria-label="Controlli pagina">
-                    <button class="ceremony-page-button ceremony-page-button-prev" id="ceremonyPrev" type="button" aria-label="Pagina precedente">
-                        <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
-                        </svg>
-                    </button>
-                    <button class="ceremony-page-button ceremony-page-button-next" id="ceremonyNext" type="button" aria-label="Pagina successiva">
-                        <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
-                        </svg>
-                    </button>
-                </div>
+            <div class="ceremony-pdf-shell">
+                <iframe
+                    class="ceremony-pdf"
+                    id="ceremonyPdf"
+                    title="Libretto della cerimonia"
+                    src="about:blank"
+                    data-src="documenti/libretto-messa.pdf#view=FitH&toolbar=1&navpanes=0"
+                ></iframe>
             </div>
 
             <a class="ceremony-external"
                href="documenti/libretto-messa.pdf"
                target="_blank"
                rel="noopener noreferrer">
-                Se il libretto non si carica, apri il PDF qui
+                Apri il PDF in una nuova pagina
             </a>
         </div>
     </dialog>
@@ -573,8 +552,6 @@
     <!-- SCRIPT -->
     <script src="js/envelope.js"></script>
     <script src="js/countdown.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-    <script src="js/page-flip.browser.js"></script>
     <script src="js/site.js"></script>
     <script src="js/hero.js"></script>
 </body>
