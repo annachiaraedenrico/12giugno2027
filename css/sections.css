@@ -1128,6 +1128,15 @@
     align-items: center;
 
     overflow: hidden;
+
+    touch-action: none;
+    overscroll-behavior: contain;
+
+    cursor: default;
+}
+
+.ceremony-book-shell:has(.ceremony-zoom-layer[style*="scale(1."]) {
+    cursor: grab;
 }
 
 .ceremony-zoom-layer {
@@ -1141,11 +1150,6 @@
 
     transform: scale(1);
     transform-origin: center center;
-
-    transition:
-        transform
-        180ms
-        ease;
 
     will-change: transform;
 }
@@ -1378,12 +1382,6 @@
     }
 }
 
-
-@media (pointer: coarse) {
-    .ceremony-zoom-layer {
-        transition: none;
-    }
-}
 
 /* GOOGLE FORMS NEL CARTONCINO */
 .rsvp-dialog {
