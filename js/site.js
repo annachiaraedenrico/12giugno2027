@@ -387,22 +387,178 @@ if (
     const button = document.getElementById("ceremonyOpen");
     const dialog = document.getElementById("ceremonyDialog");
     const close = document.getElementById("ceremonyClose");
-    const frame = document.getElementById("ceremonyFrame");
+    const book = document.getElementById("ceremonyBook");
+    const loading = document.getElementById("ceremonyLoading");
+    const controls = document.getElementById("ceremonyBookControls");
+    const previousButton = document.getElementById("ceremonyPrev");
+    const nextButton = document.getElementById("ceremonyNext");
+    const pageCount = document.getElementById("ceremonyPageCount");
 
-    if (!button || !dialog || !close || !frame) return;
+    if (
+        !button ||
+        !dialog ||
+        !close ||
+        !book ||
+        !loading ||
+        !controls ||
+        !previousButton ||
+        !nextButton ||
+        !pageCount
+    ) {
+        return;
+    }
 
     let previousFocus = null;
+    let pageFlip = null;
+    let bookPromise = null;
+    let totalPages = 0;
+
+    function updatePageCounter() {
+        if (!pageFlip || totalPages === 0) return;
+
+        const currentPage = pageFlip.getCurrentPageIndex() + 1;
+
+        pageCount.textContent =
+            `${currentPage} / ${totalPages}`;
+
+        previousButton.disabled = currentPage <= 1;
+        nextButton.disabled = currentPage >= totalPages;
+    }
+
+    async function buildBook() {
+        if (pageFlip) return;
+
+        if (!window.pdfjsLib || !window.St || !window.St.PageFlip) {
+            throw new Error("Librerie del libretto non disponibili.");
+        }
+
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+        const pdf = await window.pdfjsLib
+            .getDocument("documenti/libretto-messa.pdf")
+            .promise;
+
+        totalPages = pdf.numPages;
+
+        const images = [];
+
+        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+            loading.textContent =
+                `Caricamento del libretto… ${pageNumber} / ${totalPages}`;
+
+            const page = await pdf.getPage(pageNumber);
+            const initialViewport = page.getViewport({ scale: 1 });
+
+            // Qualità sufficiente per leggere il testo senza generare
+            // immagini enormi sui telefoni.
+            const targetWidth =
+                Math.min(
+                    Math.max(window.innerWidth * 1.5, 900),
+                    1400
+                );
+
+            const scale = targetWidth / initialViewport.width;
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d", {
+                alpha: false
+            });
+
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+
+            await page.render({
+                canvasContext: context,
+                viewport
+            }).promise;
+
+            images.push(
+                canvas.toDataURL("image/jpeg", 0.92)
+            );
+        }
+
+        const firstPage = await pdf.getPage(1);
+        const firstViewport = firstPage.getViewport({ scale: 1 });
+        const pageRatio = firstViewport.height / firstViewport.width;
+
+        const availableHeight =
+            Math.min(
+                window.innerHeight * 0.68,
+                820
+            );
+
+        const pageHeight =
+            Math.max(
+                360,
+                Math.round(availableHeight)
+            );
+
+        const pageWidth =
+            Math.max(
+                250,
+                Math.round(pageHeight / pageRatio)
+            );
+
+        pageFlip = new window.St.PageFlip(
+            book,
+            {
+                width: pageWidth,
+                height: pageHeight,
+                size: "stretch",
+                minWidth: 250,
+                maxWidth: 620,
+                minHeight: 350,
+                maxHeight: 900,
+                maxShadowOpacity: 0.35,
+                showCover: false,
+                mobileScrollSupport: false,
+                usePortrait: true,
+                autoSize: true,
+                drawShadow: true,
+                flippingTime: 800,
+                startPage: 0
+            }
+        );
+
+        pageFlip.loadFromImages(images);
+
+        pageFlip.on("flip", updatePageCounter);
+
+        loading.hidden = true;
+        controls.hidden = false;
+
+        updatePageCounter();
+    }
 
     button.addEventListener("click", () => {
         if (dialog.open) return;
 
         previousFocus = document.activeElement;
-
-        if (!frame.hasAttribute("src")) {
-            frame.src = frame.dataset.src;
-        }
-
         openDialogAnimated(dialog);
+
+        if (!bookPromise) {
+            bookPromise = buildBook().catch(error => {
+                console.error(error);
+
+                loading.textContent =
+                    "Non è stato possibile caricare il libretto. Usa il link qui sotto per aprire il PDF.";
+
+                controls.hidden = true;
+
+                // Consente un nuovo tentativo alla prossima apertura.
+                bookPromise = null;
+            });
+        }
+    });
+
+    previousButton.addEventListener("click", () => {
+        if (pageFlip) pageFlip.flipPrev();
+    });
+
+    nextButton.addEventListener("click", () => {
+        if (pageFlip) pageFlip.flipNext();
     });
 
     close.addEventListener(
