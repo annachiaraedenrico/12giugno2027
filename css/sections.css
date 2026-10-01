@@ -1130,6 +1130,116 @@
     background: #fff;
 }
 
+.ceremony-pdf-controls {
+    position: relative;
+
+    width: 100%;
+    height: 38px;
+
+    margin-top: 12px;
+}
+
+.ceremony-pdf-zoom,
+.ceremony-pdf-pages {
+    position: absolute;
+    top: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    transform: translate(-50%, -50%);
+}
+
+.ceremony-pdf-zoom {
+    left: 25%;
+    gap: 4px;
+}
+
+.ceremony-pdf-pages {
+    left: 75%;
+    gap: 22px;
+}
+
+.ceremony-pdf-page-count {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    min-width: 64px;
+
+    color: var(--muted);
+
+    font-size: 0.85rem;
+
+    text-align: center;
+
+    transform: translate(-50%, -50%);
+}
+
+.ceremony-pdf-button {
+    display: grid;
+
+    place-items: center;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    border: 1px solid #ABA5F0;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.90);
+    color: #8176B8;
+
+    font: inherit;
+    font-size: 1.15rem;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.ceremony-pdf-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.ceremony-pdf-zoom-value {
+    min-width: 52px;
+
+    color: var(--muted);
+
+    font-size: 0.8rem;
+
+    text-align: center;
+}
+
+.ceremony-pdf-arrow svg {
+    display: block;
+
+    width: 20px;
+    height: 20px;
+
+    overflow: visible;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transform-origin: center;
+}
+
+.ceremony-pdf-arrow-prev svg {
+    transform: rotate(90deg);
+}
+
+.ceremony-pdf-arrow-next svg {
+    transform: rotate(-90deg);
+}
+
 .ceremony-external {
     display: inline-block;
 
@@ -1155,6 +1265,24 @@
 
     .ceremony-pdf-shell {
         height: min(74dvh, 760px);
+    }
+
+    .ceremony-pdf-zoom {
+        gap: 3px;
+    }
+
+    .ceremony-pdf-pages {
+        gap: 16px;
+    }
+
+    .ceremony-pdf-page-count {
+        min-width: 48px;
+        font-size: 0.78rem;
+    }
+
+    .ceremony-pdf-zoom-value {
+        min-width: 44px;
+        font-size: 0.74rem;
     }
 }
 
