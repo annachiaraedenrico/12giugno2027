@@ -1095,11 +1095,11 @@
 
 /* LIBRETTO CERIMONIA NEL POPUP */
 .ceremony-dialog {
-    width: min(900px, calc(100% - 16px));
+    width: min(760px, calc(100% - 16px));
 }
 
 .ceremony-paper {
-    padding: 56px 0 18px;
+    padding: 56px 18px 18px;
     background: #fff;
 }
 
@@ -1107,24 +1107,170 @@
     animation: rsvp-appear 550ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
-.ceremony-frame {
-    display: block;
+.ceremony-book-shell {
+    position: relative;
+
     width: 100%;
-    height: 76vh;
-    height: 76dvh;
-    border: 0;
-    background: #fff;
+    height:
+        min(
+            68vh,
+            820px
+        );
+    height:
+        min(
+            68dvh,
+            820px
+        );
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+.ceremony-book {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+.ceremony-book .stf__parent {
+    margin: 0 auto !important;
+}
+
+.ceremony-loading {
+    position: absolute;
+    inset: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    padding: 24px;
+
+    color: var(--muted);
+
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+.ceremony-loading[hidden] {
+    display: none;
+}
+
+.ceremony-book-controls {
+    margin-top: 12px;
+
+    display: grid;
+
+    grid-template-columns:
+        42px
+        minmax(80px, auto)
+        42px;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.ceremony-book-controls[hidden] {
+    display: none;
+}
+
+.ceremony-page-button {
+    display: grid;
+
+    place-items: center;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    border:
+        1px solid
+        #ABA5F0;
+
+    border-radius: 50%;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.90
+        );
+
+    color: #8176B8;
+
+    font: inherit;
+    font-size: 1.15rem;
+
+    cursor: pointer;
+}
+
+.ceremony-page-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.ceremony-page-count {
+    min-width: 80px;
+
+    color: var(--muted);
+
+    font-size: 0.85rem;
+
+    text-align: center;
 }
 
 .ceremony-external {
     display: inline-block;
-    margin-top: 14px;
-    font-size: 0.85rem;
+
+    margin-top: 12px;
+
+    font-size: 0.82rem;
+
     text-decoration: underline;
 }
 
+@media (max-width: 760px) {
+    .ceremony-dialog {
+        width: calc(100% - 10px);
+        max-height: calc(100dvh - 10px);
+    }
+
+    .ceremony-paper {
+        padding:
+            54px
+            8px
+            14px;
+    }
+
+    .ceremony-book-shell {
+        height:
+            min(
+                70dvh,
+                720px
+            );
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .ceremony-dialog[open] { animation: none; }
+    .ceremony-dialog[open] {
+        animation: none;
+    }
 }
 
 /* GOOGLE FORMS NEL CARTONCINO */
