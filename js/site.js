@@ -387,27 +387,33 @@ if (
     const button = document.getElementById("ceremonyOpen");
     const dialog = document.getElementById("ceremonyDialog");
     const close = document.getElementById("ceremonyClose");
+    const shell = document.getElementById("ceremonyBookShell");
+    const zoomLayer = document.getElementById("ceremonyZoomLayer");
     const book = document.getElementById("ceremonyBook");
     const loading = document.getElementById("ceremonyLoading");
     const controls = document.getElementById("ceremonyBookControls");
     const previousButton = document.getElementById("ceremonyPrev");
     const nextButton = document.getElementById("ceremonyNext");
-    const tapPrevious = document.getElementById("ceremonyTapPrev");
-    const tapNext = document.getElementById("ceremonyTapNext");
     const pageCount = document.getElementById("ceremonyPageCount");
+    const zoomOutButton = document.getElementById("ceremonyZoomOut");
+    const zoomInButton = document.getElementById("ceremonyZoomIn");
+    const zoomValue = document.getElementById("ceremonyZoomValue");
 
     if (
         !button ||
         !dialog ||
         !close ||
+        !shell ||
+        !zoomLayer ||
         !book ||
         !loading ||
         !controls ||
         !previousButton ||
         !nextButton ||
-        !tapPrevious ||
-        !tapNext ||
-        !pageCount
+        !pageCount ||
+        !zoomOutButton ||
+        !zoomInButton ||
+        !zoomValue
     ) {
         return;
     }
@@ -417,66 +423,140 @@ if (
     let bookPromise = null;
     let totalPages = 0;
 
+    const minZoom = 1;
+    const maxZoom = 2.5;
+    const zoomStep = 0.25;
+
+    let zoom = 1;
+    let pinchStartDistance = 0;
+    let pinchStartZoom = 1;
+    let isPinching = false;
+
+    let pointerDownX = 0;
+    let pointerDownY = 0;
+    let pointerMoved = false;
+
+    function clampZoom(value) {
+        return Math.min(
+            maxZoom,
+            Math.max(minZoom, value)
+        );
+    }
+
+    function applyZoom(value) {
+        zoom = clampZoom(value);
+
+        zoomLayer.style.transform =
+            `scale(${zoom})`;
+
+        zoomValue.textContent =
+            `${Math.round(zoom * 100)}%`;
+
+        zoomOutButton.disabled =
+            zoom <= minZoom + 0.001;
+
+        zoomInButton.disabled =
+            zoom >= maxZoom - 0.001;
+    }
+
+    function touchDistance(touches) {
+        const dx =
+            touches[0].clientX -
+            touches[1].clientX;
+
+        const dy =
+            touches[0].clientY -
+            touches[1].clientY;
+
+        return Math.hypot(dx, dy);
+    }
+
     function updatePageCounter() {
         if (!pageFlip || totalPages === 0) return;
 
-        const currentPage = pageFlip.getCurrentPageIndex() + 1;
+        const currentPage =
+            pageFlip.getCurrentPageIndex() + 1;
 
         pageCount.textContent =
             `${currentPage} / ${totalPages}`;
 
-        const atFirstPage = currentPage <= 1;
-        const atLastPage = currentPage >= totalPages;
+        previousButton.disabled =
+            currentPage <= 1;
 
-        previousButton.disabled = atFirstPage;
-        nextButton.disabled = atLastPage;
-        tapPrevious.disabled = atFirstPage;
-        tapNext.disabled = atLastPage;
+        nextButton.disabled =
+            currentPage >= totalPages;
     }
 
     async function buildBook() {
         if (pageFlip) return;
 
-        if (!window.pdfjsLib || !window.St || !window.St.PageFlip) {
-            throw new Error("Librerie del libretto non disponibili.");
+        if (
+            !window.pdfjsLib ||
+            !window.St ||
+            !window.St.PageFlip
+        ) {
+            throw new Error(
+                "Librerie del libretto non disponibili."
+            );
         }
 
         window.pdfjsLib.GlobalWorkerOptions.workerSrc =
             "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
 
         const pdf = await window.pdfjsLib
-            .getDocument("documenti/libretto-messa.pdf")
+            .getDocument(
+                "documenti/libretto-messa.pdf"
+            )
             .promise;
 
         totalPages = pdf.numPages;
 
         const images = [];
 
-        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+        for (
+            let pageNumber = 1;
+            pageNumber <= totalPages;
+            pageNumber += 1
+        ) {
             loading.textContent =
                 `Caricamento del libretto… ${pageNumber} / ${totalPages}`;
 
-            const page = await pdf.getPage(pageNumber);
-            const initialViewport = page.getViewport({ scale: 1 });
+            const page =
+                await pdf.getPage(pageNumber);
 
-            // Qualità sufficiente per leggere il testo senza generare
-            // immagini enormi sui telefoni.
+            const initialViewport =
+                page.getViewport({ scale: 1 });
+
             const targetWidth =
                 Math.min(
-                    Math.max(window.innerWidth * 1.5, 900),
+                    Math.max(
+                        window.innerWidth * 1.5,
+                        900
+                    ),
                     1400
                 );
 
-            const scale = targetWidth / initialViewport.width;
-            const viewport = page.getViewport({ scale });
+            const scale =
+                targetWidth /
+                initialViewport.width;
 
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d", {
-                alpha: false
-            });
+            const viewport =
+                page.getViewport({ scale });
 
-            canvas.width = Math.ceil(viewport.width);
-            canvas.height = Math.ceil(viewport.height);
+            const canvas =
+                document.createElement("canvas");
+
+            const context =
+                canvas.getContext(
+                    "2d",
+                    { alpha: false }
+                );
+
+            canvas.width =
+                Math.ceil(viewport.width);
+
+            canvas.height =
+                Math.ceil(viewport.height);
 
             await page.render({
                 canvasContext: context,
@@ -484,13 +564,22 @@ if (
             }).promise;
 
             images.push(
-                canvas.toDataURL("image/jpeg", 0.92)
+                canvas.toDataURL(
+                    "image/jpeg",
+                    0.92
+                )
             );
         }
 
-        const firstPage = await pdf.getPage(1);
-        const firstViewport = firstPage.getViewport({ scale: 1 });
-        const pageRatio = firstViewport.height / firstViewport.width;
+        const firstPage =
+            await pdf.getPage(1);
+
+        const firstViewport =
+            firstPage.getViewport({ scale: 1 });
+
+        const pageRatio =
+            firstViewport.height /
+            firstViewport.width;
 
         const availableHeight =
             Math.min(
@@ -507,90 +596,305 @@ if (
         const pageWidth =
             Math.max(
                 250,
-                Math.round(pageHeight / pageRatio)
+                Math.round(
+                    pageHeight /
+                    pageRatio
+                )
             );
 
-        pageFlip = new window.St.PageFlip(
-            book,
-            {
-                width: pageWidth,
-                height: pageHeight,
-                size: "stretch",
-                minWidth: 250,
-                maxWidth: 620,
-                minHeight: 350,
-                maxHeight: 900,
-                maxShadowOpacity: 0.35,
-                showCover: false,
-                mobileScrollSupport: false,
-                usePortrait: true,
-                autoSize: true,
-                drawShadow: true,
-                flippingTime: 800,
-                startPage: 0
-            }
-        );
+        pageFlip =
+            new window.St.PageFlip(
+                book,
+                {
+                    width: pageWidth,
+                    height: pageHeight,
+                    size: "stretch",
+                    minWidth: 250,
+                    maxWidth: 620,
+                    minHeight: 350,
+                    maxHeight: 900,
+                    maxShadowOpacity: 0.35,
+                    showCover: false,
+                    mobileScrollSupport: false,
+                    usePortrait: true,
+                    autoSize: true,
+                    drawShadow: true,
+                    flippingTime: 800,
+                    startPage: 0
+                }
+            );
 
         pageFlip.loadFromImages(images);
 
-        pageFlip.on("flip", updatePageCounter);
+        pageFlip.on(
+            "flip",
+            updatePageCounter
+        );
 
         loading.hidden = true;
         controls.hidden = false;
 
         updatePageCounter();
+        applyZoom(1);
     }
 
-    button.addEventListener("click", () => {
-        if (dialog.open) return;
+    button.addEventListener(
+        "click",
+        () => {
+            if (dialog.open) return;
 
-        const weddingMusic = document.getElementById("weddingMusic");
+            const weddingMusic =
+                document.getElementById(
+                    "weddingMusic"
+                );
 
-        if (weddingMusic) {
-            weddingMusic.pause();
+            if (weddingMusic) {
+                weddingMusic.pause();
+            }
+
+            previousFocus =
+                document.activeElement;
+
+            openDialogAnimated(dialog);
+
+            if (!bookPromise) {
+                bookPromise =
+                    buildBook().catch(
+                        error => {
+                            console.error(
+                                error
+                            );
+
+                            loading.textContent =
+                                "Non è stato possibile caricare il libretto. Usa il link qui sotto per aprire il PDF.";
+
+                            controls.hidden = true;
+
+                            bookPromise = null;
+                        }
+                    );
+            }
         }
-
-        previousFocus = document.activeElement;
-        openDialogAnimated(dialog);
-
-        if (!bookPromise) {
-            bookPromise = buildBook().catch(error => {
-                console.error(error);
-
-                loading.textContent =
-                    "Non è stato possibile caricare il libretto. Usa il link qui sotto per aprire il PDF.";
-
-                controls.hidden = true;
-
-                // Consente un nuovo tentativo alla prossima apertura.
-                bookPromise = null;
-            });
-        }
-    });
+    );
 
     function goToPreviousPage() {
-        if (pageFlip) pageFlip.flipPrev();
+        if (pageFlip) {
+            pageFlip.flipPrev();
+        }
     }
 
     function goToNextPage() {
-        if (pageFlip) pageFlip.flipNext();
+        if (pageFlip) {
+            pageFlip.flipNext();
+        }
     }
 
-    previousButton.addEventListener("click", goToPreviousPage);
-    nextButton.addEventListener("click", goToNextPage);
-    tapPrevious.addEventListener("click", goToPreviousPage);
-    tapNext.addEventListener("click", goToNextPage);
+    previousButton.addEventListener(
+        "click",
+        goToPreviousPage
+    );
+
+    nextButton.addEventListener(
+        "click",
+        goToNextPage
+    );
+
+    zoomOutButton.addEventListener(
+        "click",
+        () => applyZoom(
+            zoom - zoomStep
+        )
+    );
+
+    zoomInButton.addEventListener(
+        "click",
+        () => applyZoom(
+            zoom + zoomStep
+        )
+    );
+
+    /*
+     * Il tap sul 20% sinistro/destra è gestito sul contenitore,
+     * senza overlay: così drag e animazione PageFlip continuano
+     * a ricevere normalmente tutti gli eventi del puntatore.
+     */
+    shell.addEventListener(
+        "pointerdown",
+        event => {
+            if (
+                event.pointerType === "touch" &&
+                isPinching
+            ) {
+                return;
+            }
+
+            pointerDownX = event.clientX;
+            pointerDownY = event.clientY;
+            pointerMoved = false;
+        },
+        true
+    );
+
+    shell.addEventListener(
+        "pointermove",
+        event => {
+            if (
+                Math.hypot(
+                    event.clientX - pointerDownX,
+                    event.clientY - pointerDownY
+                ) > 10
+            ) {
+                pointerMoved = true;
+            }
+        },
+        true
+    );
+
+    shell.addEventListener(
+        "click",
+        event => {
+            if (
+                !pageFlip ||
+                pointerMoved ||
+                isPinching
+            ) {
+                return;
+            }
+
+            const rect =
+                shell.getBoundingClientRect();
+
+            const relativeX =
+                event.clientX - rect.left;
+
+            const ratio =
+                relativeX / rect.width;
+
+            if (ratio <= 0.20) {
+                goToPreviousPage();
+            } else if (ratio >= 0.80) {
+                goToNextPage();
+            }
+        },
+        true
+    );
+
+    /*
+     * Pinch-to-zoom: con due dita il gesto viene riservato allo zoom.
+     * Con un solo dito non viene bloccato nulla, quindi PageFlip resta
+     * completamente operativo.
+     */
+    shell.addEventListener(
+        "touchstart",
+        event => {
+            if (event.touches.length !== 2) {
+                return;
+            }
+
+            isPinching = true;
+
+            pinchStartDistance =
+                touchDistance(
+                    event.touches
+                );
+
+            pinchStartZoom = zoom;
+
+            event.preventDefault();
+        },
+        {
+            passive: false,
+            capture: true
+        }
+    );
+
+    shell.addEventListener(
+        "touchmove",
+        event => {
+            if (
+                !isPinching ||
+                event.touches.length !== 2
+            ) {
+                return;
+            }
+
+            const distance =
+                touchDistance(
+                    event.touches
+                );
+
+            if (
+                pinchStartDistance <= 0
+            ) {
+                return;
+            }
+
+            applyZoom(
+                pinchStartZoom *
+                (
+                    distance /
+                    pinchStartDistance
+                )
+            );
+
+            event.preventDefault();
+        },
+        {
+            passive: false,
+            capture: true
+        }
+    );
+
+    function finishPinch() {
+        if (!isPinching) return;
+
+        isPinching = false;
+        pinchStartDistance = 0;
+
+        window.setTimeout(
+            () => {
+                pointerMoved = false;
+            },
+            0
+        );
+    }
+
+    shell.addEventListener(
+        "touchend",
+        finishPinch,
+        {
+            passive: true,
+            capture: true
+        }
+    );
+
+    shell.addEventListener(
+        "touchcancel",
+        finishPinch,
+        {
+            passive: true,
+            capture: true
+        }
+    );
 
     close.addEventListener(
         "click",
         () => closeDialogAnimated(dialog)
     );
 
-    dialog.addEventListener("close", () => {
-        if (previousFocus && previousFocus.isConnected) {
-            previousFocus.focus({ preventScroll: true });
+    dialog.addEventListener(
+        "close",
+        () => {
+            if (
+                previousFocus &&
+                previousFocus.isConnected
+            ) {
+                previousFocus.focus({
+                    preventScroll: true
+                });
+            }
         }
-    });
+    );
 })();
 
 /* CONFERMA PRESENZA */
