@@ -422,6 +422,10 @@ if (
     let pageFlip = null;
     let bookPromise = null;
     let totalPages = 0;
+    let pdfDocument = null;
+    let pageImages = [];
+    let qualityTimer = null;
+    let qualityGeneration = 0;
 
     const minZoom = 1;
     const maxZoom = 2.5;
@@ -491,6 +495,158 @@ if (
             `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
     }
 
+    function updatePageFlipCanvasQuality() {
+        if (
+            !pageFlip ||
+            !pageFlip.ui ||
+            !pageFlip.getRender
+        ) {
+            return;
+        }
+
+        const render =
+            pageFlip.getRender();
+
+        const canvas =
+            render && render.canvas;
+
+        if (!canvas) {
+            return;
+        }
+
+        const deviceScale =
+            Math.min(
+                window.devicePixelRatio || 1,
+                3
+            );
+
+        const renderScale =
+            Math.min(
+                4,
+                Math.max(
+                    1,
+                    deviceScale * zoom
+                )
+            );
+
+        canvas.dataset.renderScale =
+            String(renderScale);
+
+        pageFlip.ui.update();
+    }
+
+    async function rerenderCurrentPageHighQuality() {
+        if (
+            !pageFlip ||
+            !pdfDocument ||
+            pageImages.length === 0
+        ) {
+            return;
+        }
+
+        const generation =
+            ++qualityGeneration;
+
+        const pageIndex =
+            pageFlip.getCurrentPageIndex();
+
+        const page =
+            await pdfDocument.getPage(
+                pageIndex + 1
+            );
+
+        const initialViewport =
+            page.getViewport({ scale: 1 });
+
+        const deviceScale =
+            Math.min(
+                window.devicePixelRatio || 1,
+                3
+            );
+
+        const targetWidth =
+            Math.min(
+                4200,
+                Math.max(
+                    1600,
+                    shell.clientWidth *
+                    zoom *
+                    deviceScale *
+                    1.35
+                )
+            );
+
+        const viewport =
+            page.getViewport({
+                scale:
+                    targetWidth /
+                    initialViewport.width
+            });
+
+        const canvas =
+            document.createElement("canvas");
+
+        const context =
+            canvas.getContext(
+                "2d",
+                { alpha: false }
+            );
+
+        canvas.width =
+            Math.ceil(viewport.width);
+
+        canvas.height =
+            Math.ceil(viewport.height);
+
+        await page.render({
+            canvasContext: context,
+            viewport
+        }).promise;
+
+        if (
+            generation !==
+            qualityGeneration
+        ) {
+            return;
+        }
+
+        pageImages[pageIndex] =
+            canvas.toDataURL(
+                "image/png"
+            );
+
+        pageFlip.updateFromImages(
+            pageImages
+        );
+
+        updatePageCounter();
+        updatePageFlipCanvasQuality();
+    }
+
+    function scheduleHighQualityRender(
+        delay = 140
+    ) {
+        window.clearTimeout(
+            qualityTimer
+        );
+
+        qualityTimer =
+            window.setTimeout(
+                () => {
+                    rerenderCurrentPageHighQuality()
+                        .catch(
+                            error => {
+                                console.error(
+                                    "Rendering HD libretto:",
+                                    error
+                                );
+                            }
+                        );
+                },
+                delay
+            );
+    }
+
     function applyZoom(value) {
         zoom = clampZoom(value);
 
@@ -500,6 +656,8 @@ if (
         }
 
         applyBookTransform();
+        updatePageFlipCanvasQuality();
+        scheduleHighQualityRender();
 
         zoomValue.textContent =
             `${Math.round(zoom * 100)}%`;
@@ -561,6 +719,7 @@ if (
             )
             .promise;
 
+        pdfDocument = pdf;
         totalPages = pdf.numPages;
 
         const images = [];
@@ -687,11 +846,20 @@ if (
                 }
             );
 
-        pageFlip.loadFromImages(images);
+        pageImages = images.slice();
+
+        pageFlip.loadFromImages(
+            pageImages
+        );
 
         pageFlip.on(
             "flip",
-            updatePageCounter
+            () => {
+                updatePageCounter();
+                scheduleHighQualityRender(
+                    60
+                );
+            }
         );
 
         loading.hidden = true;
@@ -699,6 +867,9 @@ if (
 
         updatePageCounter();
         applyZoom(1);
+        scheduleHighQualityRender(
+            0
+        );
     }
 
     button.addEventListener(
@@ -1062,6 +1233,10 @@ if (
         pinchStartDistance = 0;
 
         applyBookTransform();
+        updatePageFlipCanvasQuality();
+        scheduleHighQualityRender(
+            20
+        );
 
         window.setTimeout(
             () => {
