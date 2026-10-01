@@ -422,12 +422,24 @@
                     Caricamento del libretto…
                 </div>
                 <div class="ceremony-book" id="ceremonyBook" aria-label="Libretto della cerimonia"></div>
+                <button class="ceremony-tap-zone ceremony-tap-zone-prev" id="ceremonyTapPrev"
+                        type="button" aria-label="Pagina precedente"></button>
+                <button class="ceremony-tap-zone ceremony-tap-zone-next" id="ceremonyTapNext"
+                        type="button" aria-label="Pagina successiva"></button>
             </div>
 
             <div class="ceremony-book-controls" id="ceremonyBookControls" hidden>
-                <button class="ceremony-page-button" id="ceremonyPrev" type="button" aria-label="Pagina precedente">←</button>
+                <button class="ceremony-page-button ceremony-page-button-prev" id="ceremonyPrev" type="button" aria-label="Pagina precedente">
+                    <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
+                    </svg>
+                </button>
                 <span class="ceremony-page-count" id="ceremonyPageCount" aria-live="polite"></span>
-                <button class="ceremony-page-button" id="ceremonyNext" type="button" aria-label="Pagina successiva">→</button>
+                <button class="ceremony-page-button ceremony-page-button-next" id="ceremonyNext" type="button" aria-label="Pagina successiva">
+                    <svg class="ceremony-page-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 4.5V18.5M6.5 13L12 18.5L17.5 13"></path>
+                    </svg>
+                </button>
             </div>
 
             <a class="ceremony-external"
