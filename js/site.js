@@ -1236,6 +1236,10 @@ document.addEventListener(
             fadeTimer
         );
 
+        // Il volume viene ripristinato solo quando la musica
+        // viene esplicitamente riattivata.
+        audio.volume = 1;
+
         const graph =
             ensureAudioGraph();
 
@@ -1354,21 +1358,26 @@ document.addEventListener(
                     fadeTimer =
                         window.setTimeout(
                             () => {
-                                audio.pause();
-
-                                const resetTime =
+                                const stopTime =
                                     graph.context.currentTime;
 
                                 graph.gain.gain
                                     .cancelScheduledValues(
-                                        resetTime
+                                        stopTime
                                     );
 
                                 graph.gain.gain
                                     .setValueAtTime(
-                                        1,
-                                        resetTime
+                                        0,
+                                        stopTime
                                     );
+
+                                audio.pause();
+
+                                // Il gain resta a zero finché l'utente
+                                // non riattiva la musica. In questo modo
+                                // non c'è alcun ritorno istantaneo al
+                                // volume pieno alla fine del fade.
                             },
                             duration + 40
                         );
@@ -1413,9 +1422,8 @@ document.addEventListener(
                     return;
                 }
 
+                audio.volume = 0;
                 audio.pause();
-                audio.volume =
-                    startVolume;
             }
 
             requestAnimationFrame(
