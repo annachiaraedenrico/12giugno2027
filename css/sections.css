@@ -1130,6 +1130,26 @@
     overflow: hidden;
 }
 
+.ceremony-zoom-layer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    transform: scale(1);
+    transform-origin: center center;
+
+    transition:
+        transform
+        180ms
+        ease;
+
+    will-change: transform;
+}
+
 .ceremony-book {
     width: 100%;
     height: 100%;
@@ -1139,43 +1159,11 @@
     justify-content: center;
     align-items: center;
 
-    overflow: hidden;
+    overflow: visible;
 }
 
 .ceremony-book .stf__parent {
     margin: 0 auto !important;
-}
-
-.ceremony-tap-zone {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-
-    width: 20%;
-
-    padding: 0;
-    border: 0;
-
-    background: transparent;
-
-    cursor: pointer;
-
-    z-index: 8;
-
-    -webkit-tap-highlight-color: transparent;
-}
-
-.ceremony-tap-zone-prev {
-    left: 0;
-}
-
-.ceremony-tap-zone-next {
-    right: 0;
-}
-
-.ceremony-tap-zone:disabled {
-    pointer-events: none;
-    cursor: default;
 }
 
 .ceremony-loading {
@@ -1214,6 +1202,36 @@
     align-items: center;
 
     gap: 12px;
+}
+
+.ceremony-zoom-controls {
+    grid-column:
+        1 /
+        -1;
+
+    display: grid;
+
+    grid-template-columns:
+        38px
+        minmax(70px, auto)
+        38px;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 2px;
+}
+
+.ceremony-zoom-value {
+    min-width: 70px;
+
+    color: var(--muted);
+
+    font-size: 0.82rem;
+
+    text-align: center;
 }
 
 .ceremony-book-controls[hidden] {
@@ -1279,6 +1297,11 @@
     cursor: default;
 }
 
+.ceremony-zoom-button {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
 .ceremony-page-count {
     min-width: 80px;
 
@@ -1324,6 +1347,13 @@
 @media (prefers-reduced-motion: reduce) {
     .ceremony-dialog[open] {
         animation: none;
+    }
+}
+
+
+@media (pointer: coarse) {
+    .ceremony-zoom-layer {
+        transition: none;
     }
 }
 
