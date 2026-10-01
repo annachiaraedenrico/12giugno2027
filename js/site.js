@@ -388,75 +388,133 @@ if (
     const dialog = document.getElementById("ceremonyDialog");
     const close = document.getElementById("ceremonyClose");
     const pdfFrame = document.getElementById("ceremonyPdf");
+    const previousButton = document.getElementById("ceremonyPdfPrev");
+    const nextButton = document.getElementById("ceremonyPdfNext");
+    const pageCount = document.getElementById("ceremonyPdfPageCount");
+    const zoomOutButton = document.getElementById("ceremonyPdfZoomOut");
+    const zoomInButton = document.getElementById("ceremonyPdfZoomIn");
+    const zoomValue = document.getElementById("ceremonyPdfZoomValue");
 
     if (
         !button ||
         !dialog ||
         !close ||
-        !pdfFrame
+        !pdfFrame ||
+        !previousButton ||
+        !nextButton ||
+        !pageCount ||
+        !zoomOutButton ||
+        !zoomInButton ||
+        !zoomValue
     ) {
         return;
     }
 
+    const pdfUrl =
+        pdfFrame.dataset.pdf;
+
     let previousFocus = null;
-    let pdfLoaded = false;
+    let metadataPromise = null;
+    let totalPages = 1;
+    let currentPage = 1;
 
-    function fadeOutWeddingMusic() {
-        const weddingMusic =
-            document.getElementById(
-                "weddingMusic"
-            );
+    const zoomLevels = [
+        75,
+        90,
+        100,
+        110,
+        125,
+        150,
+        175,
+        200
+    ];
 
-        if (!weddingMusic) return;
+    let zoomMode = "fit";
+    let zoomIndex =
+        zoomLevels.indexOf(100);
 
-        const fadeDuration = 1200;
-        const startVolume =
-            weddingMusic.volume;
+    function buildPdfUrl() {
+        const fragment =
+            zoomMode === "fit"
+                ? `page=${currentPage}&view=Fit&toolbar=0&navpanes=0`
+                : `page=${currentPage}&zoom=${zoomLevels[zoomIndex]}&toolbar=0&navpanes=0`;
 
-        if (
-            weddingMusic.paused ||
-            startVolume <= 0
-        ) {
-            weddingMusic.pause();
-            return;
-        }
-
-        const fadeStart =
-            performance.now();
-
-        function fadeMusic(timestamp) {
-            const progress =
-                Math.min(
-                    1,
-                    (
-                        timestamp -
-                        fadeStart
-                    ) /
-                    fadeDuration
-                );
-
-            weddingMusic.volume =
-                startVolume *
-                (1 - progress);
-
-            if (progress < 1) {
-                requestAnimationFrame(
-                    fadeMusic
-                );
-                return;
-            }
-
-            weddingMusic.pause();
-
-            // Ripristina il volume per un'eventuale
-            // riattivazione manuale successiva.
-            weddingMusic.volume =
-                startVolume;
-        }
-
-        requestAnimationFrame(
-            fadeMusic
+        return (
+            pdfUrl +
+            "#" +
+            fragment
         );
+    }
+
+    function updateControls() {
+        pageCount.textContent =
+            `${currentPage} / ${totalPages}`;
+
+        previousButton.disabled =
+            currentPage <= 1;
+
+        nextButton.disabled =
+            currentPage >= totalPages;
+
+        zoomValue.textContent =
+            zoomMode === "fit"
+                ? "Adatta"
+                : `${zoomLevels[zoomIndex]}%`;
+
+        zoomOutButton.disabled =
+            zoomMode !== "fit" &&
+            zoomIndex <= 0;
+
+        zoomInButton.disabled =
+            zoomMode !== "fit" &&
+            zoomIndex >=
+                zoomLevels.length - 1;
+    }
+
+    function loadPdfView() {
+        pdfFrame.src =
+            buildPdfUrl();
+
+        updateControls();
+    }
+
+    async function ensureMetadata() {
+        if (metadataPromise) {
+            return metadataPromise;
+        }
+
+        metadataPromise =
+            (async () => {
+                if (!window.pdfjsLib) {
+                    return;
+                }
+
+                try {
+                    window.pdfjsLib
+                        .GlobalWorkerOptions
+                        .workerSrc =
+                        "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+                    const pdf =
+                        await window.pdfjsLib
+                            .getDocument(
+                                pdfUrl
+                            )
+                            .promise;
+
+                    totalPages =
+                        pdf.numPages;
+
+                    updateControls();
+                } catch (error) {
+                    console.warn(
+                        "Conteggio pagine PDF non disponibile:",
+                        error
+                    );
+                }
+            })();
+
+        return metadataPromise;
     }
 
     button.addEventListener(
@@ -464,25 +522,103 @@ if (
         () => {
             if (dialog.open) return;
 
-            fadeOutWeddingMusic();
+            if (
+                typeof window.fadeWeddingMusic ===
+                "function"
+            ) {
+                window.fadeWeddingMusic(
+                    1200
+                );
+            }
 
             previousFocus =
                 document.activeElement;
 
-            if (!pdfLoaded) {
-                pdfFrame.src =
-                    pdfFrame.dataset.src;
+            currentPage = 1;
+            zoomMode = "fit";
+            zoomIndex =
+                zoomLevels.indexOf(100);
 
-                pdfLoaded = true;
+            loadPdfView();
+            ensureMetadata();
+
+            openDialogAnimated(
+                dialog
+            );
+        }
+    );
+
+    previousButton.addEventListener(
+        "click",
+        () => {
+            if (currentPage <= 1) {
+                return;
             }
 
-            openDialogAnimated(dialog);
+            currentPage -= 1;
+            loadPdfView();
+        }
+    );
+
+    nextButton.addEventListener(
+        "click",
+        () => {
+            if (
+                currentPage >=
+                totalPages
+            ) {
+                return;
+            }
+
+            currentPage += 1;
+            loadPdfView();
+        }
+    );
+
+    zoomOutButton.addEventListener(
+        "click",
+        () => {
+            if (zoomMode === "fit") {
+                zoomMode = "percent";
+                zoomIndex =
+                    zoomLevels.indexOf(
+                        90
+                    );
+            } else if (
+                zoomIndex > 0
+            ) {
+                zoomIndex -= 1;
+            }
+
+            loadPdfView();
+        }
+    );
+
+    zoomInButton.addEventListener(
+        "click",
+        () => {
+            if (zoomMode === "fit") {
+                zoomMode = "percent";
+                zoomIndex =
+                    zoomLevels.indexOf(
+                        110
+                    );
+            } else if (
+                zoomIndex <
+                zoomLevels.length - 1
+            ) {
+                zoomIndex += 1;
+            }
+
+            loadPdfView();
         }
     );
 
     close.addEventListener(
         "click",
-        () => closeDialogAnimated(dialog)
+        () => closeDialogAnimated(
+            dialog
+        )
     );
 
     dialog.addEventListener(
@@ -824,61 +960,379 @@ document.addEventListener(
     const audio = document.getElementById("weddingMusic");
     const button = document.getElementById("musicToggle");
     const status = document.getElementById("musicStatus");
+
     if (!audio || !button) return;
+
     let envelopeStarted = false;
     let mutedByUser = false;
-    function update() {
-        const silent = mutedByUser || (envelopeStarted && (audio.paused || audio.ended));
-        button.classList.toggle("is-muted", silent);
-        const label = silent ? "Attiva la musica" : "Disattiva la musica";
-        button.setAttribute("aria-label", envelopeStarted ? label : label + " prima di aprire l’invito");
-        button.title = button.getAttribute("aria-label");
-    }
-    async function play() {
-        if (mutedByUser) return;
-        audio.muted = false;
-        try {
-            await audio.play();
-            if (status) status.textContent = "";
-        } catch {
-            if (status) status.textContent = "Musica non disponibile: tocca la nota per riprovare.";
+
+    let audioContext = null;
+    let mediaSource = null;
+    let gainNode = null;
+    let fadeTimer = null;
+
+    function ensureAudioGraph() {
+        if (gainNode) {
+            return {
+                context: audioContext,
+                gain: gainNode
+            };
         }
-        update();
+
+        const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            return null;
+        }
+
+        try {
+            audioContext =
+                new AudioContextClass();
+
+            mediaSource =
+                audioContext.createMediaElementSource(
+                    audio
+                );
+
+            gainNode =
+                audioContext.createGain();
+
+            gainNode.gain.value = 1;
+
+            mediaSource
+                .connect(gainNode)
+                .connect(
+                    audioContext.destination
+                );
+
+            return {
+                context: audioContext,
+                gain: gainNode
+            };
+        } catch (error) {
+            console.warn(
+                "Web Audio non disponibile per la musica:",
+                error
+            );
+
+            return null;
+        }
     }
-    window.addEventListener("envelopeopening", () => {
-        envelopeStarted = true;
-        if (!mutedByUser) play();
-        update();
-    }, { once: true });
-    button.addEventListener("click", event => {
-        event.stopPropagation();
-        if (!envelopeStarted) {
-            mutedByUser = !mutedByUser;
-            audio.muted = mutedByUser;
-            update();
+
+    async function restoreGain() {
+        window.clearTimeout(
+            fadeTimer
+        );
+
+        const graph =
+            ensureAudioGraph();
+
+        if (!graph) {
+            audio.volume = 1;
             return;
         }
-        if (mutedByUser || audio.paused || audio.ended) {
-            mutedByUser = false;
-            play();
-        } else {
-            mutedByUser = true;
-            audio.muted = true;
-            update();
+
+        try {
+            if (
+                graph.context.state ===
+                "suspended"
+            ) {
+                await graph.context.resume();
+            }
+        } catch {
+            // Se il browser non consente resume qui,
+            // il play() proverà comunque normalmente.
         }
-    });
+
+        const now =
+            graph.context.currentTime;
+
+        graph.gain.gain
+            .cancelScheduledValues(now);
+
+        graph.gain.gain
+            .setValueAtTime(
+                1,
+                now
+            );
+    }
+
+    window.fadeWeddingMusic =
+        async function fadeWeddingMusic(
+            duration = 1200
+        ) {
+            if (
+                audio.paused ||
+                audio.ended
+            ) {
+                audio.pause();
+                return;
+            }
+
+            const graph =
+                ensureAudioGraph();
+
+            if (graph) {
+                try {
+                    if (
+                        graph.context.state ===
+                        "suspended"
+                    ) {
+                        await graph.context.resume();
+                    }
+
+                    const now =
+                        graph.context.currentTime;
+
+                    const currentGain =
+                        Math.max(
+                            0.0001,
+                            graph.gain.gain.value
+                        );
+
+                    graph.gain.gain
+                        .cancelScheduledValues(now);
+
+                    graph.gain.gain
+                        .setValueAtTime(
+                            currentGain,
+                            now
+                        );
+
+                    graph.gain.gain
+                        .linearRampToValueAtTime(
+                            0.0001,
+                            now +
+                            duration / 1000
+                        );
+
+                    window.clearTimeout(
+                        fadeTimer
+                    );
+
+                    fadeTimer =
+                        window.setTimeout(
+                            () => {
+                                audio.pause();
+
+                                const resetTime =
+                                    graph.context.currentTime;
+
+                                graph.gain.gain
+                                    .cancelScheduledValues(
+                                        resetTime
+                                    );
+
+                                graph.gain.gain
+                                    .setValueAtTime(
+                                        1,
+                                        resetTime
+                                    );
+                            },
+                            duration + 40
+                        );
+
+                    return;
+                } catch (error) {
+                    console.warn(
+                        "Fade Web Audio non riuscito:",
+                        error
+                    );
+                }
+            }
+
+            // Fallback per browser senza Web Audio.
+            const startVolume =
+                audio.volume;
+
+            const fadeStart =
+                performance.now();
+
+            function fallbackFade(
+                timestamp
+            ) {
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            timestamp -
+                            fadeStart
+                        ) /
+                        duration
+                    );
+
+                audio.volume =
+                    startVolume *
+                    (1 - progress);
+
+                if (progress < 1) {
+                    requestAnimationFrame(
+                        fallbackFade
+                    );
+                    return;
+                }
+
+                audio.pause();
+                audio.volume =
+                    startVolume;
+            }
+
+            requestAnimationFrame(
+                fallbackFade
+            );
+        };
+
+    function update() {
+        const silent =
+            mutedByUser ||
+            (
+                envelopeStarted &&
+                (
+                    audio.paused ||
+                    audio.ended
+                )
+            );
+
+        button.classList.toggle(
+            "is-muted",
+            silent
+        );
+
+        const label =
+            silent
+                ? "Attiva la musica"
+                : "Disattiva la musica";
+
+        button.setAttribute(
+            "aria-label",
+            envelopeStarted
+                ? label
+                : label +
+                  " prima di aprire l’invito"
+        );
+
+        button.title =
+            button.getAttribute(
+                "aria-label"
+            );
+    }
+
+    async function play() {
+        if (mutedByUser) return;
+
+        audio.muted = false;
+
+        await restoreGain();
+
+        try {
+            await audio.play();
+
+            if (status) {
+                status.textContent = "";
+            }
+        } catch {
+            if (status) {
+                status.textContent =
+                    "Musica non disponibile: tocca la nota per riprovare.";
+            }
+        }
+
+        update();
+    }
+
+    window.addEventListener(
+        "envelopeopening",
+        () => {
+            envelopeStarted = true;
+
+            // Crea il grafo audio durante un gesto utente,
+            // così Safari/iOS può usarlo poi per il fade reale.
+            ensureAudioGraph();
+
+            if (!mutedByUser) {
+                play();
+            }
+
+            update();
+        },
+        { once: true }
+    );
+
+    button.addEventListener(
+        "click",
+        event => {
+            event.stopPropagation();
+
+            if (!envelopeStarted) {
+                mutedByUser =
+                    !mutedByUser;
+
+                audio.muted =
+                    mutedByUser;
+
+                update();
+                return;
+            }
+
+            if (
+                mutedByUser ||
+                audio.paused ||
+                audio.ended
+            ) {
+                mutedByUser = false;
+                play();
+            } else {
+                mutedByUser = true;
+                audio.muted = true;
+                update();
+            }
+        }
+    );
+
     function pauseWhenAway() {
         audio.pause();
         update();
     }
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) pauseWhenAway();
-    });
-    window.addEventListener("pagehide", pauseWhenAway);
-    audio.addEventListener("play", () => {
-        if (document.hidden) pauseWhenAway();
-    });
-    ["play", "pause", "ended", "volumechange", "error"].forEach(event => audio.addEventListener(event, update));
+
+    document.addEventListener(
+        "visibilitychange",
+        () => {
+            if (document.hidden) {
+                pauseWhenAway();
+            }
+        }
+    );
+
+    window.addEventListener(
+        "pagehide",
+        pauseWhenAway
+    );
+
+    audio.addEventListener(
+        "play",
+        () => {
+            if (document.hidden) {
+                pauseWhenAway();
+            }
+        }
+    );
+
+    [
+        "play",
+        "pause",
+        "ended",
+        "volumechange",
+        "error"
+    ].forEach(
+        event =>
+            audio.addEventListener(
+                event,
+                update
+            )
+    );
+
     update();
 })();
 
