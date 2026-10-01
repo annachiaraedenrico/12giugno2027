@@ -385,253 +385,46 @@ if (
 /* LIBRETTO CERIMONIA */
 (() => {
     const button = document.getElementById("ceremonyOpen");
-    const dialog = document.getElementById("ceremonyDialog");
-    const close = document.getElementById("ceremonyClose");
-    const pdfFrame = document.getElementById("ceremonyPdf");
-    const previousButton = document.getElementById("ceremonyPdfPrev");
-    const nextButton = document.getElementById("ceremonyPdfNext");
-    const pageCount = document.getElementById("ceremonyPdfPageCount");
-    const zoomOutButton = document.getElementById("ceremonyPdfZoomOut");
-    const zoomInButton = document.getElementById("ceremonyPdfZoomIn");
-    const zoomValue = document.getElementById("ceremonyPdfZoomValue");
 
-    if (
-        !button ||
-        !dialog ||
-        !close ||
-        !pdfFrame ||
-        !previousButton ||
-        !nextButton ||
-        !pageCount ||
-        !zoomOutButton ||
-        !zoomInButton ||
-        !zoomValue
-    ) {
-        return;
-    }
+    if (!button) return;
 
     const pdfUrl =
-        pdfFrame.dataset.pdf;
+        "documenti/libretto-messa.pdf";
 
-    let previousFocus = null;
-    let metadataPromise = null;
-    let totalPages = 1;
-    let currentPage = 1;
-
-    const zoomLevels = [
-        75,
-        90,
-        100,
-        110,
-        125,
-        150,
-        175,
-        200
-    ];
-
-    let zoomMode = "fit";
-    let zoomIndex =
-        zoomLevels.indexOf(100);
-
-    function buildPdfUrl() {
-        const fragment =
-            zoomMode === "fit"
-                ? `page=${currentPage}&view=Fit&toolbar=0&navpanes=0`
-                : `page=${currentPage}&zoom=${zoomLevels[zoomIndex]}&toolbar=0&navpanes=0`;
-
-        return (
-            pdfUrl +
-            "#" +
-            fragment
-        );
-    }
-
-    function updateControls() {
-        pageCount.textContent =
-            `${currentPage} / ${totalPages}`;
-
-        previousButton.disabled =
-            currentPage <= 1;
-
-        nextButton.disabled =
-            currentPage >= totalPages;
-
-        zoomValue.textContent =
-            zoomMode === "fit"
-                ? "Adatta"
-                : `${zoomLevels[zoomIndex]}%`;
-
-        zoomOutButton.disabled =
-            zoomMode !== "fit" &&
-            zoomIndex <= 0;
-
-        zoomInButton.disabled =
-            zoomMode !== "fit" &&
-            zoomIndex >=
-                zoomLevels.length - 1;
-    }
-
-    function loadPdfView() {
-        pdfFrame.src =
-            buildPdfUrl();
-
-        updateControls();
-    }
-
-    async function ensureMetadata() {
-        if (metadataPromise) {
-            return metadataPromise;
-        }
-
-        metadataPromise =
-            (async () => {
-                if (!window.pdfjsLib) {
-                    return;
-                }
-
-                try {
-                    window.pdfjsLib
-                        .GlobalWorkerOptions
-                        .workerSrc =
-                        "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
-
-                    const pdf =
-                        await window.pdfjsLib
-                            .getDocument(
-                                pdfUrl
-                            )
-                            .promise;
-
-                    totalPages =
-                        pdf.numPages;
-
-                    updateControls();
-                } catch (error) {
-                    console.warn(
-                        "Conteggio pagine PDF non disponibile:",
-                        error
-                    );
-                }
-            })();
-
-        return metadataPromise;
-    }
+    let opening = false;
 
     button.addEventListener(
         "click",
-        () => {
-            if (dialog.open) return;
+        event => {
+            event.preventDefault();
+
+            if (opening) return;
+
+            opening = true;
+            button.disabled = true;
 
             if (
                 typeof window.fadeWeddingMusic ===
                 "function"
             ) {
                 window.fadeWeddingMusic(
-                    1200
+                    2500
                 );
             }
 
-            previousFocus =
-                document.activeElement;
-
-            currentPage = 1;
-            zoomMode = "fit";
-            zoomIndex =
-                zoomLevels.indexOf(100);
-
-            loadPdfView();
-            ensureMetadata();
-
-            openDialogAnimated(
-                dialog
+            /*
+             * Su Safari/iOS il PDF dentro un iframe non offre un
+             * visualizzatore affidabile. Dopo il fade apriamo quindi
+             * il PDF come pagina vera e propria, lasciando al browser
+             * il suo lettore nativo completo.
+             */
+            window.setTimeout(
+                () => {
+                    window.location.href =
+                        pdfUrl;
+                },
+                2500
             );
-        }
-    );
-
-    previousButton.addEventListener(
-        "click",
-        () => {
-            if (currentPage <= 1) {
-                return;
-            }
-
-            currentPage -= 1;
-            loadPdfView();
-        }
-    );
-
-    nextButton.addEventListener(
-        "click",
-        () => {
-            if (
-                currentPage >=
-                totalPages
-            ) {
-                return;
-            }
-
-            currentPage += 1;
-            loadPdfView();
-        }
-    );
-
-    zoomOutButton.addEventListener(
-        "click",
-        () => {
-            if (zoomMode === "fit") {
-                zoomMode = "percent";
-                zoomIndex =
-                    zoomLevels.indexOf(
-                        90
-                    );
-            } else if (
-                zoomIndex > 0
-            ) {
-                zoomIndex -= 1;
-            }
-
-            loadPdfView();
-        }
-    );
-
-    zoomInButton.addEventListener(
-        "click",
-        () => {
-            if (zoomMode === "fit") {
-                zoomMode = "percent";
-                zoomIndex =
-                    zoomLevels.indexOf(
-                        110
-                    );
-            } else if (
-                zoomIndex <
-                zoomLevels.length - 1
-            ) {
-                zoomIndex += 1;
-            }
-
-            loadPdfView();
-        }
-    );
-
-    close.addEventListener(
-        "click",
-        () => closeDialogAnimated(
-            dialog
-        )
-    );
-
-    dialog.addEventListener(
-        "close",
-        () => {
-            if (
-                previousFocus &&
-                previousFocus.isConnected
-            ) {
-                previousFocus.focus({
-                    preventScroll: true
-                });
-            }
         }
     );
 })();
@@ -1061,7 +854,7 @@ document.addEventListener(
 
     window.fadeWeddingMusic =
         async function fadeWeddingMusic(
-            duration = 1200
+            duration = 2500
         ) {
             if (
                 audio.paused ||
