@@ -695,18 +695,23 @@
 ======================================================= */
 
 .footer-vehicles {
+    --vehicle-height:
+        min(
+            30vw,
+            467px
+        );
+
     position: relative;
 
     width: 100%;
 
     display: flex;
 
-    justify-content: space-between;
     align-items: flex-end;
 
     padding:
         0
-        clamp(22px, 4vw, 64px)
+        0
         clamp(28px, 4vw, 50px);
 
     pointer-events: none;
@@ -719,20 +724,19 @@
 
 .footer-vespa,
 .footer-500 {
+    flex:
+        0
+        0
+        50%;
+
+    min-width: 0;
+
     display: flex;
+
+    justify-content: center;
     align-items: flex-end;
 
     pointer-events: none;
-}
-
-
-.footer-vespa {
-    justify-content: flex-start;
-}
-
-
-.footer-500 {
-    justify-content: flex-end;
 }
 
 
@@ -741,13 +745,8 @@
     display: block;
 
     width: auto;
-    height:
-        min(
-            30vw,
-            467px
-        );
 
-    max-width: 100%;
+    max-width: 92%;
 
     object-fit: contain;
 
@@ -756,6 +755,29 @@
     user-select: none;
 
     -webkit-user-drag: none;
+}
+
+
+/*
+ * La 500 ha circa 12 px di margine trasparente sopra e sotto
+ * nell'immagine originale (323 px di altezza totale).
+ * Compensiamo quel margine affinché l'altezza VISIBILE della Vespa
+ * coincida con quella della 500 e le due basi risultino allineate.
+ */
+.footer-500 img {
+    height: var(--vehicle-height);
+
+    transform:
+        translateY(3.715%);
+}
+
+
+.footer-vespa img {
+    height:
+        calc(
+            var(--vehicle-height)
+            * 0.9257
+        );
 }
 
 
@@ -892,17 +914,12 @@
 
 
     .footer-vehicles {
+        --vehicle-height: 30vw;
+
         padding:
             0
-            18px
+            0
             24px;
-    }
-
-
-    .footer-vespa img,
-    .footer-500 img {
-        width: auto;
-        height: 30vw;
     }
 
 }
