@@ -740,9 +740,14 @@
 .footer-500 img {
     display: block;
 
-    max-width: 100%;
+    width: auto;
+    height:
+        min(
+            30vw,
+            467px
+        );
 
-    height: auto;
+    max-width: 100%;
 
     object-fit: contain;
 
@@ -751,24 +756,6 @@
     user-select: none;
 
     -webkit-user-drag: none;
-}
-
-
-.footer-vespa img {
-    width:
-        min(
-            30vw,
-            460px
-        );
-}
-
-
-.footer-500 img {
-    width:
-        min(
-            45vw,
-            700px
-        );
 }
 
 
@@ -912,13 +899,10 @@
     }
 
 
-    .footer-vespa img {
-        width: 34vw;
-    }
-
-
+    .footer-vespa img,
     .footer-500 img {
-        width: 45vw;
+        width: auto;
+        height: 30vw;
     }
 
 }
