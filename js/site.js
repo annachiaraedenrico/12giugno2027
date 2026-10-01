@@ -579,13 +579,21 @@ if (
             const initialViewport =
                 page.getViewport({ scale: 1 });
 
+            const deviceScale =
+                Math.min(
+                    window.devicePixelRatio || 1,
+                    2
+                );
+
             const targetWidth =
                 Math.min(
                     Math.max(
-                        window.innerWidth * 1.5,
-                        900
+                        window.innerWidth *
+                        maxZoom *
+                        deviceScale,
+                        1800
                     ),
-                    1400
+                    3200
                 );
 
             const scale =
@@ -617,8 +625,7 @@ if (
 
             images.push(
                 canvas.toDataURL(
-                    "image/jpeg",
-                    0.92
+                    "image/png"
                 )
             );
         }
