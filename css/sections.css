@@ -1146,6 +1146,38 @@
     margin: 0 auto !important;
 }
 
+.ceremony-tap-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    width: 20%;
+
+    padding: 0;
+    border: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    z-index: 8;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ceremony-tap-zone-prev {
+    left: 0;
+}
+
+.ceremony-tap-zone-next {
+    right: 0;
+}
+
+.ceremony-tap-zone:disabled {
+    pointer-events: none;
+    cursor: default;
+}
+
 .ceremony-loading {
     position: absolute;
     inset: 0;
@@ -1214,10 +1246,32 @@
 
     color: #8176B8;
 
-    font: inherit;
-    font-size: 1.15rem;
-
     cursor: pointer;
+}
+
+.ceremony-page-arrow {
+    display: block;
+
+    width: 20px;
+    height: 20px;
+
+    overflow: visible;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transform-origin: center;
+}
+
+.ceremony-page-button-prev .ceremony-page-arrow {
+    transform: rotate(90deg);
+}
+
+.ceremony-page-button-next .ceremony-page-arrow {
+    transform: rotate(-90deg);
 }
 
 .ceremony-page-button:disabled {
