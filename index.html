@@ -416,17 +416,25 @@
                 </svg>
             </button>
             <h2 id="ceremonyTitle"><em>Libretto della cerimonia 📖</em></h2>
-            <iframe
-                id="ceremonyFrame"
-                class="ceremony-frame"
-                title="Libretto della cerimonia"
-                data-src="documenti/libretto-messa.pdf#view=FitH"
-            ></iframe>
+
+            <div class="ceremony-book-shell">
+                <div class="ceremony-loading" id="ceremonyLoading" role="status">
+                    Caricamento del libretto…
+                </div>
+                <div class="ceremony-book" id="ceremonyBook" aria-label="Libretto della cerimonia"></div>
+            </div>
+
+            <div class="ceremony-book-controls" id="ceremonyBookControls" hidden>
+                <button class="ceremony-page-button" id="ceremonyPrev" type="button" aria-label="Pagina precedente">←</button>
+                <span class="ceremony-page-count" id="ceremonyPageCount" aria-live="polite"></span>
+                <button class="ceremony-page-button" id="ceremonyNext" type="button" aria-label="Pagina successiva">→</button>
+            </div>
+
             <a class="ceremony-external"
                href="documenti/libretto-messa.pdf"
                target="_blank"
                rel="noopener noreferrer">
-                Se il PDF non si carica, aprilo qui
+                Se il libretto non si carica, apri il PDF qui
             </a>
         </div>
     </dialog>
@@ -546,6 +554,8 @@
     <!-- SCRIPT -->
     <script src="js/envelope.js"></script>
     <script src="js/countdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="js/page-flip.browser.js"></script>
     <script src="js/site.js"></script>
     <script src="js/hero.js"></script>
 </body>
