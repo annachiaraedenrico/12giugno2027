@@ -1269,6 +1269,35 @@ document.addEventListener(
             );
     }
 
+    function stopImmediately() {
+        window.clearTimeout(
+            fadeTimer
+        );
+
+        if (
+            gainNode &&
+            audioContext
+        ) {
+            const now =
+                audioContext.currentTime;
+
+            gainNode.gain
+                .cancelScheduledValues(now);
+
+            gainNode.gain
+                .setValueAtTime(
+                    1,
+                    now
+                );
+        }
+
+        audio.pause();
+        audio.muted = false;
+
+        update();
+    }
+
+
     window.fadeWeddingMusic =
         async function fadeWeddingMusic(
             duration = 2500
@@ -1494,9 +1523,10 @@ document.addEventListener(
                 mutedByUser = false;
                 play();
             } else {
+                // Il pulsante musica interrompe sempre subito:
+                // il fade resta riservato all'apertura del libretto.
                 mutedByUser = true;
-                audio.muted = true;
-                update();
+                stopImmediately();
             }
         }
     );
