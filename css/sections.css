@@ -697,8 +697,8 @@
 .footer-vehicles {
     --vehicle-height:
         min(
-            30vw,
-            467px
+            29vw,
+            450px
         );
 
     position: relative;
@@ -758,26 +758,9 @@
 }
 
 
-/*
- * La 500 ha circa 12 px di margine trasparente sopra e sotto
- * nell'immagine originale (323 px di altezza totale).
- * Compensiamo quel margine affinché l'altezza VISIBILE della Vespa
- * coincida con quella della 500 e le due basi risultino allineate.
- */
+.footer-vespa img,
 .footer-500 img {
     height: var(--vehicle-height);
-
-    transform:
-        translateY(3.715%);
-}
-
-
-.footer-vespa img {
-    height:
-        calc(
-            var(--vehicle-height)
-            * 0.9257
-        );
 }
 
 
@@ -914,7 +897,7 @@
 
 
     .footer-vehicles {
-        --vehicle-height: 30vw;
+        --vehicle-height: 29vw;
 
         padding:
             0
