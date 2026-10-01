@@ -221,14 +221,15 @@
                             data-parking-coordinates="40.764173,14.784570">⛪ Chiesa di San Martino Vescovo</button>
                     <p class="ceremony-time">Cerimonia ore 11:00</p>
                 <div class="ceremony-link">
-<a
+<button
                             class="button ceremony-button"
-                            href="documenti/libretto-messa.pdf"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            id="ceremonyOpen"
+                            type="button"
+                            aria-haspopup="dialog"
+                            aria-controls="ceremonyDialog"
                         >
                             📖 Segui con noi la cerimonia
-                        </a>
+                        </button>
                 </div>
                     </div>
                     <button class="button button-secondary place-open" type="button"
@@ -402,6 +403,31 @@
                     <img class="navigation-logo" src="images/mappe.png" alt="">Mappe di Apple
                 </a>
             </div>
+        </div>
+    </dialog>
+
+    <!-- LIBRETTO CERIMONIA -->
+    <dialog class="calendar-dialog ceremony-dialog" id="ceremonyDialog" aria-labelledby="ceremonyTitle">
+        <div class="calendar-paper ceremony-paper">
+            <button class="calendar-close" id="ceremonyClose" type="button"
+                    aria-label="Chiudi libretto della cerimonia" autofocus>
+                <svg class="calendar-close-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M6 6L18 18M18 6L6 18"></path>
+                </svg>
+            </button>
+            <h2 id="ceremonyTitle"><em>Libretto della cerimonia 📖</em></h2>
+            <iframe
+                id="ceremonyFrame"
+                class="ceremony-frame"
+                title="Libretto della cerimonia"
+                data-src="documenti/libretto-messa.pdf#view=FitH"
+            ></iframe>
+            <a class="ceremony-external"
+               href="documenti/libretto-messa.pdf"
+               target="_blank"
+               rel="noopener noreferrer">
+                Se il PDF non si carica, aprilo qui
+            </a>
         </div>
     </dialog>
 
