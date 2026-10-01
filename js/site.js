@@ -622,7 +622,11 @@ if (
                     autoSize: true,
                     drawShadow: true,
                     flippingTime: 800,
-                    startPage: 0
+                    startPage: 0,
+
+                    // Lo sfoglio tramite drag/swipe di PageFlip è disattivato:
+                    // si cambia pagina solo con tap laterale o frecce.
+                    useMouseEvents: false
                 }
             );
 
@@ -761,9 +765,9 @@ if (
     );
 
     /*
-     * Il tap sul 20% sinistro/destra è gestito sul contenitore,
-     * senza overlay: così drag e animazione PageFlip continuano
-     * a ricevere normalmente tutti gli eventi del puntatore.
+     * Il tap sul 20% sinistro/destra è gestito sul contenitore.
+     * Gli eventi drag/swipe di PageFlip sono disattivati: un movimento
+     * non cambia pagina e resta libero per l'interazione con lo zoom.
      */
     shell.addEventListener(
         "pointerdown",
@@ -829,39 +833,28 @@ if (
             const targetRatio =
                 pointerDownRatio;
 
-            /*
-             * Lascia prima a PageFlip la possibilità di gestire
-             * normalmente il tap. Se non ha cambiato pagina,
-             * applichiamo il nostro tap laterale 20%/20%.
-             */
-            window.setTimeout(
-                () => {
-                    if (
-                        !pageFlip ||
-                        pageFlip.getCurrentPageIndex() !==
-                            targetPage
-                    ) {
-                        return;
-                    }
+            if (
+                pageFlip.getCurrentPageIndex() !==
+                    targetPage
+            ) {
+                return;
+            }
 
-                    if (targetRatio <= 0.20) {
-                        goToPreviousPage();
-                    } else if (
-                        targetRatio >= 0.80
-                    ) {
-                        goToNextPage();
-                    }
-                },
-                80
-            );
+            if (targetRatio <= 0.20) {
+                goToPreviousPage();
+            } else if (
+                targetRatio >= 0.80
+            ) {
+                goToNextPage();
+            }
         },
         true
     );
 
     /*
      * Pinch-to-zoom: con due dita il gesto viene riservato allo zoom.
-     * Con un solo dito non viene bloccato nulla, quindi PageFlip resta
-     * completamente operativo.
+     * Con un solo dito non viene avviato alcuno sfoglio tramite drag:
+     * restano attivi il tap laterale e i pulsanti di navigazione.
      */
     shell.addEventListener(
         "touchstart",
