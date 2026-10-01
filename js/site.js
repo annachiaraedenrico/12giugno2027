@@ -649,7 +649,52 @@ if (
                 );
 
             if (weddingMusic) {
-                weddingMusic.pause();
+                const fadeDuration = 1200;
+                const startVolume = weddingMusic.volume;
+
+                if (
+                    !weddingMusic.paused &&
+                    startVolume > 0
+                ) {
+                    const fadeStart =
+                        performance.now();
+
+                    function fadeMusic(timestamp) {
+                        const progress =
+                            Math.min(
+                                1,
+                                (
+                                    timestamp -
+                                    fadeStart
+                                ) /
+                                fadeDuration
+                            );
+
+                        weddingMusic.volume =
+                            startVolume *
+                            (1 - progress);
+
+                        if (progress < 1) {
+                            requestAnimationFrame(
+                                fadeMusic
+                            );
+                            return;
+                        }
+
+                        weddingMusic.pause();
+
+                        // Ripristina il volume per un'eventuale
+                        // riattivazione manuale successiva.
+                        weddingMusic.volume =
+                            startVolume;
+                    }
+
+                    requestAnimationFrame(
+                        fadeMusic
+                    );
+                } else {
+                    weddingMusic.pause();
+                }
             }
 
             previousFocus =
