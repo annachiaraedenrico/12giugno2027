@@ -438,6 +438,15 @@ if (
     let pointerDownPage = 0;
     let pointerDownRatio = 0;
 
+    let panX = 0;
+    let panY = 0;
+    let panStartX = 0;
+    let panStartY = 0;
+    let panOriginX = 0;
+    let panOriginY = 0;
+    let isPanning = false;
+    let activePointerId = null;
+
     function clampZoom(value) {
         return Math.min(
             maxZoom,
@@ -445,11 +454,52 @@ if (
         );
     }
 
+    function clampPan() {
+        if (zoom <= 1) {
+            panX = 0;
+            panY = 0;
+            return;
+        }
+
+        const maxX =
+            shell.clientWidth *
+            (zoom - 1) /
+            2;
+
+        const maxY =
+            shell.clientHeight *
+            (zoom - 1) /
+            2;
+
+        panX =
+            Math.max(
+                -maxX,
+                Math.min(maxX, panX)
+            );
+
+        panY =
+            Math.max(
+                -maxY,
+                Math.min(maxY, panY)
+            );
+    }
+
+    function applyBookTransform() {
+        clampPan();
+
+        zoomLayer.style.transform =
+            `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`;
+    }
+
     function applyZoom(value) {
         zoom = clampZoom(value);
 
-        zoomLayer.style.transform =
-            `scale(${zoom})`;
+        if (zoom <= 1) {
+            panX = 0;
+            panY = 0;
+        }
+
+        applyBookTransform();
 
         zoomValue.textContent =
             `${Math.round(zoom * 100)}%`;
@@ -772,10 +822,7 @@ if (
     shell.addEventListener(
         "pointerdown",
         event => {
-            if (
-                event.pointerType === "touch" &&
-                isPinching
-            ) {
+            if (isPinching) {
                 return;
             }
 
@@ -797,6 +844,37 @@ if (
                 pageFlip
                     ? pageFlip.getCurrentPageIndex()
                     : 0;
+
+            if (
+                zoom > 1 &&
+                activePointerId === null
+            ) {
+                activePointerId =
+                    event.pointerId;
+
+                isPanning = true;
+
+                panStartX =
+                    event.clientX;
+
+                panStartY =
+                    event.clientY;
+
+                panOriginX = panX;
+                panOriginY = panY;
+
+                if (
+                    shell.setPointerCapture
+                ) {
+                    try {
+                        shell.setPointerCapture(
+                            event.pointerId
+                        );
+                    } catch {
+                        // Nessuna azione necessaria.
+                    }
+                }
+            }
         },
         true
     );
@@ -804,21 +882,58 @@ if (
     shell.addEventListener(
         "pointermove",
         event => {
-            if (
+            const distance =
                 Math.hypot(
                     event.clientX - pointerDownX,
                     event.clientY - pointerDownY
-                ) > 10
-            ) {
+                );
+
+            if (distance > 8) {
                 pointerMoved = true;
             }
+
+            if (
+                !isPanning ||
+                isPinching ||
+                zoom <= 1 ||
+                event.pointerId !==
+                    activePointerId
+            ) {
+                return;
+            }
+
+            panX =
+                panOriginX +
+                (
+                    event.clientX -
+                    panStartX
+                );
+
+            panY =
+                panOriginY +
+                (
+                    event.clientY -
+                    panStartY
+                );
+
+            applyBookTransform();
+
+            event.preventDefault();
         },
         true
     );
 
     shell.addEventListener(
         "pointerup",
-        () => {
+        event => {
+            if (
+                event.pointerId ===
+                    activePointerId
+            ) {
+                isPanning = false;
+                activePointerId = null;
+            }
+
             if (
                 !pageFlip ||
                 pointerMoved ||
@@ -851,6 +966,20 @@ if (
         true
     );
 
+    shell.addEventListener(
+        "pointercancel",
+        event => {
+            if (
+                event.pointerId ===
+                    activePointerId
+            ) {
+                isPanning = false;
+                activePointerId = null;
+            }
+        },
+        true
+    );
+
     /*
      * Pinch-to-zoom: con due dita il gesto viene riservato allo zoom.
      * Con un solo dito non viene avviato alcuno sfoglio tramite drag:
@@ -864,6 +993,8 @@ if (
             }
 
             isPinching = true;
+            isPanning = false;
+            activePointerId = null;
 
             pinchStartDistance =
                 touchDistance(
@@ -922,6 +1053,8 @@ if (
 
         isPinching = false;
         pinchStartDistance = 0;
+
+        applyBookTransform();
 
         window.setTimeout(
             () => {
