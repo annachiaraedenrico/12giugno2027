@@ -117,3 +117,25 @@
         height: 24px;
     }
 }
+
+
+/* DESKTOP: solo freccia, più distante dal bordo inferiore */
+@media (min-width: 761px) {
+    .scroll-indicator {
+        bottom: 22px;
+        gap: 0;
+    }
+
+    .scroll-label {
+        display: none;
+    }
+
+    .scroll-arrow {
+        background: rgba(250, 247, 242, 0.86);
+        box-shadow:
+            0 5px 18px
+            rgba(62, 48, 40, 0.14);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+}
