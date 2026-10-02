@@ -43,6 +43,8 @@
 ======================================================= */
 
 .section-title {
+    font-family: "Dancing Script", cursive;
+
     margin:
         0
         0
@@ -103,8 +105,8 @@
     color: var(--muted);
 
     font-family:
-        "Lora",
-        serif;
+        "Caveat",
+        cursive;
 
     font-size: 1rem;
 
@@ -139,8 +141,8 @@
     color: #FFFFFF;
 
     font-family:
-        "Lora",
-        serif;
+        "Caveat",
+        cursive;
 
     font-size: 0.88rem;
 
@@ -464,8 +466,8 @@
     gap: 12px;
 
     font-family:
-        "Lora",
-        serif;
+        "Caveat",
+        cursive;
 
     color:
         var(--muted);
@@ -524,8 +526,8 @@
         #8176B8;
 
     font-family:
-        "Lora",
-        serif;
+        "Caveat",
+        cursive;
 
     font-size: 0.75rem;
 
@@ -643,8 +645,8 @@
     text-align: left;
 
     font-family:
-        "Lora",
-        serif;
+        "Caveat",
+        cursive;
 }
 
 
@@ -968,7 +970,7 @@
 
 .calendar-paper h2 {
     margin: 0 0 16px;
-    font-family: inherit;
+    font-family: "Dancing Script", cursive;
     font-size: clamp(1.5rem, 5vw, 2rem);
     font-weight: 400;
     line-height: 1.3;
@@ -1443,15 +1445,22 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 /* LOGHI DEI CALENDARI */
 .calendar-actions .button { gap: 8px; }
 
-/* FONT DELLA DATA HERO PER I TESTI DEL SITO.
-   La hero e il countdown mantengono le proprie regole. */
+/* PROVA TIPOGRAFICA:
+   Caveat per i testi generali; Dancing Script per i titoli dei moduli.
+   La hero e il countdown mantengono le proprie regole dedicate. */
 .section,
 .section *,
 .calendar-dialog,
 .calendar-dialog *,
 #scrollIndicator,
 #scrollIndicator * {
-    font-family: "Lora", serif;
+    font-family: "Caveat", cursive;
+}
+
+.section-title,
+.calendar-paper h2,
+.calendar-paper h2 * {
+    font-family: "Dancing Script", cursive;
 }
 
 /* NOTA SEMPRE ACCESSIBILE, ANCHE SOPRA LA BUSTA */
