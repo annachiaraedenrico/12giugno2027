@@ -12,7 +12,7 @@
     align-items: center;
 
     padding:
-        30px
+        50px
         24px
         60px;
 
@@ -45,7 +45,7 @@
 .hero-portrait {
     display: block;
 
-    width: min(60vw, 380px);
+    width: min(64vw, 405px);
     height: auto;
 
     margin-bottom: 18px;
@@ -77,9 +77,9 @@
 
     font-size:
         clamp(
-            4.7rem,
-            10vw,
-            7.1rem
+            4.9rem,
+            10.5vw,
+            7.4rem
         );
 
     font-weight: 400;
@@ -381,7 +381,7 @@
 
     .hero {
         padding:
-            22px
+            36px
             20px
             50px;
     }
@@ -389,8 +389,8 @@
     .hero-portrait {
         width:
             min(
-                72vw,
-                340px
+                76vw,
+                360px
             );
 
         margin-bottom: 14px;
@@ -399,9 +399,9 @@
     .hero h1 {
         font-size:
             clamp(
-                3.9rem,
-                16vw,
-                5.9rem
+                4.1rem,
+                16.5vw,
+                6.2rem
             );
     }
 
