@@ -1542,3 +1542,9 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 #sogno .section-text {
     color: var(--text);
 }
+
+
+/* NOMI CONTATTI: Sue Ellen Francisco */
+.contact-person h3 {
+    font-family: "Sue Ellen Francisco", cursive;
+}
