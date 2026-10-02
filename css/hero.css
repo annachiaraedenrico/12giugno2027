@@ -72,7 +72,7 @@
     margin: 0;
 
     font-family:
-        "Allura",
+        "Playwrite CA",
         cursive;
 
     font-size:
@@ -132,8 +132,8 @@
     color: var(--muted);
 
     font-family:
-        "Lora",
-        serif;
+        "Caveat",
+        cursive;
 
     font-size:
         clamp(
@@ -228,9 +228,8 @@
         );
 
     font-family:
-        "Cormorant Garamond",
-        "Lora",
-        serif;
+        "Edu QLD Hand",
+        cursive;
 
     font-size:
         clamp(
@@ -359,9 +358,8 @@
         );
 
     font-family:
-        "Cormorant Garamond",
-        "Lora",
-        serif;
+        "Edu QLD Hand",
+        cursive;
 
     font-size: 0.60rem;
 
