@@ -1,7 +1,7 @@
 .scroll-indicator {
     position: fixed;
     left: 50%;
-    bottom: 10px;
+    bottom: 4px;
     z-index: 500;
 
     display: flex;
