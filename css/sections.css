@@ -1534,3 +1534,11 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 #calendarDialog .calendar-actions * {
     font-family: "Caveat", cursive;
 }
+
+
+/* TESTI SECONDARI: stesso colore dei nomi nella sezione contatti */
+.ceremony-time,
+.access-code-label,
+#sogno .section-text {
+    color: var(--text);
+}
