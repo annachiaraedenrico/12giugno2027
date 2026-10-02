@@ -139,3 +139,12 @@
         -webkit-backdrop-filter: blur(8px);
     }
 }
+
+
+/* MOBILE: abbassa solo lo stato iniziale con "SCORRI";
+   il cerchio compatto mantiene la posizione attuale */
+@media (max-width: 760px) {
+    .scroll-indicator:not(.compact) {
+        bottom: -2px;
+    }
+}
