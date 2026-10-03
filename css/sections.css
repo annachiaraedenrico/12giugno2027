@@ -1548,3 +1548,9 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 .contact-person h3 {
     font-family: "Sue Ellen Francisco", cursive;
 }
+
+
+/* PARCHEGGIO: il pulsante è visibile solo per la chiesa */
+.parking-open[hidden] {
+    display: none !important;
+}
