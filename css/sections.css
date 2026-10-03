@@ -1407,7 +1407,7 @@
 /* CONTATTI */
 .contacts-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
 .contact-person { text-align: center; }
-.contact-person h3 { margin: 0 0 18px; font-size: 1.92rem; font-weight: normal; }
+.contact-person h3 { margin: 0 0 10px; font-size: 1.92rem; font-weight: normal; }
 .contact-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 .contact-actions a { display: flex; align-items: center; flex-direction: column; gap: 8px; min-width: 44px; padding: 4px; font-size: 1.04rem; }
 .contact-actions img { width: 32px; height: 32px; object-fit: contain; }
