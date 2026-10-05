@@ -1562,3 +1562,26 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
     text-align: center;
     transform: translateX(3px);
 }
+
+
+/* IMMAGINI NEL POPUP DI CHIESA E MASSERIA */
+.place-dialog-image {
+    display: block;
+    width: auto;
+    max-width: min(82%, 340px);
+    max-height: 220px;
+    margin: 0 auto 24px;
+    object-fit: contain;
+}
+
+.place-dialog-image[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 760px) {
+    .place-dialog-image {
+        max-width: min(88%, 300px);
+        max-height: 190px;
+        margin-bottom: 20px;
+    }
+}
