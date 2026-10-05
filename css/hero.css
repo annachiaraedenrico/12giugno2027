@@ -101,6 +101,12 @@
     will-change: transform;
 }
 
+.hero-name-line {
+    display: block;
+    white-space: nowrap;
+}
+
+
 
 /* =======================================================
    REVEAL HERO
