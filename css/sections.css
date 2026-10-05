@@ -1554,3 +1554,11 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 .parking-open[hidden] {
     display: none !important;
 }
+
+
+/* ALLINEAMENTO OTTICO DEL NOME ANNACHIARA NEI CONTATTI */
+.contact-name-annachiara {
+    width: 100%;
+    text-align: center;
+    transform: translateX(3px);
+}
