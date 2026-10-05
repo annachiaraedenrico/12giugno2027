@@ -870,6 +870,8 @@ if (
 (() => {
     const dialog = document.getElementById("placeDialog");
     const close = document.getElementById("placeClose");
+    const placeTitle = document.getElementById("placeTitle");
+    const placeImage = document.getElementById("placeImage");
     const parkingOpen = document.getElementById("parkingOpen");
     const parkingDialog = document.getElementById("parkingDialog");
     const parkingClose = document.getElementById("parkingClose");
@@ -892,7 +894,23 @@ if (
             previousFocus = button;
             parkingCoordinates = button.dataset.parkingCoordinates || null;
 
-            document.getElementById("placeTitle").textContent = button.dataset.placeTitle;
+            placeTitle.textContent = button.dataset.placeTitle;
+
+            const placeImageSrc = button.dataset.placeImage || "";
+            if (placeImage && placeImageSrc) {
+                placeImage.src = placeImageSrc;
+                placeImage.alt = button.dataset.placeImageAlt || button.dataset.placeTitle;
+                placeImage.hidden = false;
+                placeTitle.hidden = true;
+            } else {
+                if (placeImage) {
+                    placeImage.hidden = true;
+                    placeImage.removeAttribute("src");
+                    placeImage.alt = "";
+                }
+                placeTitle.hidden = false;
+            }
+
             document.getElementById("placeGoogle").href = button.dataset.google;
             document.getElementById("placeWaze").href = button.dataset.waze;
 
