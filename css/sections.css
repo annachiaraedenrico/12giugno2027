@@ -88,10 +88,14 @@
 .section-title-image {
     display: block;
 
-    width: 46px;
+    width: auto;
     height: 46px;
 
     object-fit: contain;
+}
+
+.section-title-image-sposini {
+    height: 92px;
 }
 
 
@@ -804,8 +808,12 @@
 
 
     .section-title-image {
-        width: 42px;
+        width: auto;
         height: 42px;
+    }
+
+    .section-title-image-sposini {
+        height: 84px;
     }
 
 
