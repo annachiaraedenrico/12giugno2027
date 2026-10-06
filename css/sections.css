@@ -72,7 +72,12 @@
 
 
 .section-emoji {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
 
     font-size: 2rem;
 
@@ -791,6 +796,9 @@
 
 
     .section-emoji {
+        width: 42px;
+        height: 42px;
+
         font-size: 1.85rem;
     }
 
