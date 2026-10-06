@@ -882,6 +882,35 @@ if (
 
     if (!dialog || !close) return;
 
+    // Precarica in anticipo le immagini usate nei popup dei luoghi,
+    // così sono già nella cache quando l'utente apre la finestra di navigazione.
+    const preloadPlaceImages = () => {
+        document.querySelectorAll(".place-open[data-place-image]").forEach(button => {
+            const src = button.dataset.placeImage;
+            if (!src) return;
+
+            const image = new Image();
+            image.decoding = "async";
+            image.src = src;
+        });
+    };
+
+    if (document.readyState === "complete") {
+        if ("requestIdleCallback" in window) {
+            requestIdleCallback(preloadPlaceImages, { timeout: 1500 });
+        } else {
+            setTimeout(preloadPlaceImages, 250);
+        }
+    } else {
+        window.addEventListener("load", () => {
+            if ("requestIdleCallback" in window) {
+                requestIdleCallback(preloadPlaceImages, { timeout: 1500 });
+            } else {
+                setTimeout(preloadPlaceImages, 250);
+            }
+        }, { once: true });
+    }
+
     let previousFocus = null;
     let parkingCoordinates = null;
     let switchingToParking = false;
