@@ -1053,41 +1053,28 @@ dialogBackdrop.setAttribute("aria-hidden", "true");
 document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
-let lockedScrollY = 0;
-let pageScrollLocked = false;
 
 function lockPageScroll() {
-    if (pageScrollLocked) return;
-
-    lockedScrollY = window.scrollY;
-    pageScrollLocked = true;
-
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${lockedScrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
-    document.body.style.overflow = "hidden";
+    document.documentElement.classList.add("dialog-scroll-lock");
+    document.body.classList.add("dialog-scroll-lock");
 }
 
 function unlockPageScroll() {
-    if (!pageScrollLocked) return;
-
     // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
     if (document.querySelector("dialog[open]")) return;
 
-    document.documentElement.style.removeProperty("overflow");
-    document.body.style.removeProperty("position");
-    document.body.style.removeProperty("top");
-    document.body.style.removeProperty("left");
-    document.body.style.removeProperty("right");
-    document.body.style.removeProperty("width");
-    document.body.style.removeProperty("overflow");
-
-    pageScrollLocked = false;
-    window.scrollTo(0, lockedScrollY);
+    document.documentElement.classList.remove("dialog-scroll-lock");
+    document.body.classList.remove("dialog-scroll-lock");
 }
+
+// Ripulisce eventuali stili inline lasciati dalla precedente gestione del blocco scroll.
+document.documentElement.style.removeProperty("overflow");
+document.body.style.removeProperty("position");
+document.body.style.removeProperty("top");
+document.body.style.removeProperty("left");
+document.body.style.removeProperty("right");
+document.body.style.removeProperty("width");
+document.body.style.removeProperty("overflow");
 
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;

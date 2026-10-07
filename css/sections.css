@@ -925,6 +925,13 @@
 
 }
 
+/* BLOCCO SCORRIMENTO PAGINA QUANDO UNA FINESTRA È APERTA */
+html.dialog-scroll-lock,
+body.dialog-scroll-lock {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
 /* =======================================================
    CALENDARIO
 ======================================================= */
