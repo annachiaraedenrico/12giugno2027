@@ -1054,12 +1054,12 @@ document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
-function lockPageScroll() {
+function lockDialogPageScroll() {
     document.documentElement.classList.add("dialog-scroll-lock");
     document.body.classList.add("dialog-scroll-lock");
 }
 
-function unlockPageScroll() {
+function unlockDialogPageScroll() {
     // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
     if (document.querySelector("dialog[open]")) return;
 
@@ -1080,7 +1080,7 @@ function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
-    lockPageScroll();
+    lockDialogPageScroll();
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
@@ -1122,7 +1122,7 @@ function closeDialogAnimated(dialog) {
             activeDialog = null;
         }
 
-        unlockPageScroll();
+        unlockDialogPageScroll();
         return;
     }
 
@@ -1171,7 +1171,7 @@ function closeDialogAnimated(dialog) {
             activeDialog = null;
         }
 
-        unlockPageScroll();
+        unlockDialogPageScroll();
     }
 
     function onDialogEnd(event) {
