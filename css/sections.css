@@ -153,7 +153,7 @@
         "Caveat",
         cursive;
 
-    font-size: 1.18rem;
+    font-size: 1.30rem;
 
     font-weight: 600;
 
@@ -230,7 +230,7 @@
         10px
         17px;
 
-    font-size: 1.07rem;
+    font-size: 1.16rem;
 }
 
 
@@ -538,7 +538,7 @@
         "Caveat",
         cursive;
 
-    font-size: 1.07rem;
+    font-size: 1.16rem;
 
     font-weight: 600;
 
@@ -1564,6 +1564,7 @@ html.envelope-closed #scrollIndicator { pointer-events: none; }
 .access-code-label,
 #sogno .section-text {
     color: var(--text);
+    font-size: 1.52rem;
 }
 
 
