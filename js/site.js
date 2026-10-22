@@ -118,8 +118,13 @@ function updateScrollIndicator() {
         );
     }
 
-    const indicatorVisible = canScroll && distanceFromBottom > 100;
-    const canActivate = indicatorVisible && !document.documentElement.classList.contains("envelope-closed");
+    const indicatorVisible =
+        canScroll &&
+        distanceFromBottom > 100;
+
+    const canActivate =
+        indicatorVisible &&
+        !document.documentElement.classList.contains("envelope-closed");
     scrollIndicator.tabIndex = canActivate ? 0 : -1;
     scrollIndicator.setAttribute("aria-hidden", String(!canActivate));
 
@@ -1054,74 +1059,50 @@ document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
-function preventBackgroundScroll(event) {
-    if (!activeDialog || !activeDialog.open) return;
+function syncDialogBackdropToViewport() {
+    if (dialogBackdrop.hidden) return;
 
-    // Dentro la finestra aperta lo scroll resta consentito.
-    if (activeDialog.contains(event.target)) return;
+    const viewport = window.visualViewport;
+    const overscan = 96;
 
-    event.preventDefault();
+    const viewportLeft = viewport
+        ? window.scrollX + viewport.offsetLeft
+        : window.scrollX;
+
+    const viewportTop = viewport
+        ? window.scrollY + viewport.offsetTop
+        : window.scrollY;
+
+    const viewportWidth = viewport
+        ? viewport.width
+        : window.innerWidth;
+
+    const viewportHeight = viewport
+        ? viewport.height
+        : window.innerHeight;
+
+    dialogBackdrop.style.left = `${viewportLeft - overscan}px`;
+    dialogBackdrop.style.top = `${viewportTop - overscan}px`;
+    dialogBackdrop.style.width = `${viewportWidth + overscan * 2}px`;
+    dialogBackdrop.style.height = `${viewportHeight + overscan * 2}px`;
 }
 
-function preventBackgroundScrollKeys(event) {
-    if (!activeDialog || !activeDialog.open) return;
-    if (activeDialog.contains(event.target)) return;
+window.addEventListener("scroll", syncDialogBackdropToViewport, {
+    passive: true
+});
 
-    const scrollingKeys = [
-        "ArrowUp",
-        "ArrowDown",
-        "PageUp",
-        "PageDown",
-        "Home",
-        "End",
-        " "
-    ];
+window.addEventListener("resize", syncDialogBackdropToViewport);
 
-    if (scrollingKeys.includes(event.key)) {
-        event.preventDefault();
-    }
-}
-
-function lockDialogPageScroll() {
-    document.addEventListener(
-        "wheel",
-        preventBackgroundScroll,
-        { passive: false, capture: true }
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "scroll",
+        syncDialogBackdropToViewport,
+        { passive: true }
     );
 
-    document.addEventListener(
-        "touchmove",
-        preventBackgroundScroll,
-        { passive: false, capture: true }
-    );
-
-    document.addEventListener(
-        "keydown",
-        preventBackgroundScrollKeys,
-        true
-    );
-}
-
-function unlockDialogPageScroll() {
-    // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
-    if (document.querySelector("dialog[open]")) return;
-
-    document.removeEventListener(
-        "wheel",
-        preventBackgroundScroll,
-        true
-    );
-
-    document.removeEventListener(
-        "touchmove",
-        preventBackgroundScroll,
-        true
-    );
-
-    document.removeEventListener(
-        "keydown",
-        preventBackgroundScrollKeys,
-        true
+    window.visualViewport.addEventListener(
+        "resize",
+        syncDialogBackdropToViewport
     );
 }
 
@@ -1129,10 +1110,10 @@ function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
-    lockDialogPageScroll();
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
+    syncDialogBackdropToViewport();
 
     // Forza un nuovo frame così il fade parte sempre da zero.
     requestAnimationFrame(() => {
@@ -1170,8 +1151,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
-        unlockDialogPageScroll();
         return;
     }
 
@@ -1219,8 +1198,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
-        unlockDialogPageScroll();
     }
 
     function onDialogEnd(event) {
