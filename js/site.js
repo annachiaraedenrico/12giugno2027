@@ -120,8 +120,7 @@ function updateScrollIndicator() {
 
     const indicatorVisible =
         canScroll &&
-        distanceFromBottom > 100 &&
-        !dialogPageScrollLocked;
+        distanceFromBottom > 100;
 
     const canActivate =
         indicatorVisible &&
@@ -1059,100 +1058,11 @@ dialogBackdrop.setAttribute("aria-hidden", "true");
 document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
-let dialogLockedScrollX = 0;
-let dialogLockedScrollY = 0;
-let dialogPageScrollLocked = false;
-
-function preventBackgroundScroll(event) {
-    if (!dialogPageScrollLocked) return;
-
-    const openDialog = activeDialog && activeDialog.open
-        ? activeDialog
-        : document.querySelector("dialog[open]");
-
-    // Lo scorrimento resta consentito dentro la finestra aperta.
-    if (openDialog && openDialog.contains(event.target)) return;
-
-    event.preventDefault();
-}
-
-function keepBackgroundAtLockedPosition() {
-    if (!dialogPageScrollLocked) return;
-
-    if (
-        Math.abs(window.scrollX - dialogLockedScrollX) > 1 ||
-        Math.abs(window.scrollY - dialogLockedScrollY) > 1
-    ) {
-        window.scrollTo({
-            left: dialogLockedScrollX,
-            top: dialogLockedScrollY,
-            behavior: "auto"
-        });
-    }
-}
-
-function lockDialogPageScroll() {
-    if (dialogPageScrollLocked) return;
-
-    dialogLockedScrollX = window.scrollX;
-    dialogLockedScrollY = window.scrollY;
-    dialogPageScrollLocked = true;
-
-    document.documentElement.classList.add("dialog-scroll-lock");
-    document.body.classList.add("dialog-scroll-lock");
-
-    document.addEventListener("wheel", preventBackgroundScroll, {
-        passive: false,
-        capture: true
-    });
-    document.addEventListener("touchmove", preventBackgroundScroll, {
-        passive: false,
-        capture: true
-    });
-    window.addEventListener("scroll", keepBackgroundAtLockedPosition, {
-        passive: true
-    });
-
-    updateScrollIndicator();
-}
-
-function unlockDialogPageScroll() {
-    // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
-    if (document.querySelector("dialog[open]")) return;
-    if (!dialogPageScrollLocked) return;
-
-    document.documentElement.classList.remove("dialog-scroll-lock");
-    document.body.classList.remove("dialog-scroll-lock");
-
-    document.removeEventListener("wheel", preventBackgroundScroll, {
-        capture: true
-    });
-    document.removeEventListener("touchmove", preventBackgroundScroll, {
-        capture: true
-    });
-    window.removeEventListener("scroll", keepBackgroundAtLockedPosition);
-
-    dialogPageScrollLocked = false;
-
-    // Non c'è più alcun ripristino della pagina: non essendo stato fissato
-    // il body, la posizione resta la stessa e non compaiono barre o salti.
-    updateScrollIndicator();
-}
-
-// Ripulisce eventuali stili inline lasciati da caricamenti/versioni precedenti.
-document.documentElement.style.removeProperty("overflow");
-document.body.style.removeProperty("position");
-document.body.style.removeProperty("top");
-document.body.style.removeProperty("left");
-document.body.style.removeProperty("right");
-document.body.style.removeProperty("width");
-document.body.style.removeProperty("overflow");
 
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
-    lockDialogPageScroll();
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
@@ -1193,8 +1103,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
-        unlockDialogPageScroll();
         return;
     }
 
@@ -1242,8 +1150,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
-        unlockDialogPageScroll();
     }
 
     function onDialogEnd(event) {
