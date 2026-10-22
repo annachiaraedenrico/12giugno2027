@@ -950,7 +950,7 @@
 
 .dialog-backdrop {
     position: fixed;
-    inset: 0;
+    inset: -64px;
     z-index: 1150;
     background: rgba(80, 65, 55, 0.18);
     backdrop-filter: blur(4px);
@@ -958,10 +958,6 @@
     opacity: 0;
     pointer-events: none;
     touch-action: none;
-
-    /* Estende visivamente il blur oltre i bordi senza cambiare il layout. */
-    transform: scale(1.12);
-    transform-origin: center;
 }
 
 .dialog-backdrop.is-visible {
