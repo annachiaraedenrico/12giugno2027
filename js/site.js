@@ -118,8 +118,14 @@ function updateScrollIndicator() {
         );
     }
 
-    const indicatorVisible = canScroll && distanceFromBottom > 100;
-    const canActivate = indicatorVisible && !document.documentElement.classList.contains("envelope-closed");
+    const indicatorVisible =
+        canScroll &&
+        distanceFromBottom > 100 &&
+        !dialogPageScrollLocked;
+
+    const canActivate =
+        indicatorVisible &&
+        !document.documentElement.classList.contains("envelope-closed");
     scrollIndicator.tabIndex = canActivate ? 0 : -1;
     scrollIndicator.setAttribute("aria-hidden", String(!canActivate));
 
@@ -1057,6 +1063,34 @@ let dialogLockedScrollX = 0;
 let dialogLockedScrollY = 0;
 let dialogPageScrollLocked = false;
 
+function preventBackgroundScroll(event) {
+    if (!dialogPageScrollLocked) return;
+
+    const openDialog = activeDialog && activeDialog.open
+        ? activeDialog
+        : document.querySelector("dialog[open]");
+
+    // Lo scorrimento resta consentito dentro la finestra aperta.
+    if (openDialog && openDialog.contains(event.target)) return;
+
+    event.preventDefault();
+}
+
+function keepBackgroundAtLockedPosition() {
+    if (!dialogPageScrollLocked) return;
+
+    if (
+        Math.abs(window.scrollX - dialogLockedScrollX) > 1 ||
+        Math.abs(window.scrollY - dialogLockedScrollY) > 1
+    ) {
+        window.scrollTo({
+            left: dialogLockedScrollX,
+            top: dialogLockedScrollY,
+            behavior: "auto"
+        });
+    }
+}
+
 function lockDialogPageScroll() {
     if (dialogPageScrollLocked) return;
 
@@ -1067,13 +1101,19 @@ function lockDialogPageScroll() {
     document.documentElement.classList.add("dialog-scroll-lock");
     document.body.classList.add("dialog-scroll-lock");
 
-    // Blocca fisicamente il documento nella posizione corrente.
-    // È più robusto di overflow:hidden quando l'utente usa pinch-to-zoom,
-    // soprattutto su Safari/iPhone.
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${dialogLockedScrollY}px`;
-    document.body.style.left = `-${dialogLockedScrollX}px`;
-    document.body.style.width = "100%";
+    document.addEventListener("wheel", preventBackgroundScroll, {
+        passive: false,
+        capture: true
+    });
+    document.addEventListener("touchmove", preventBackgroundScroll, {
+        passive: false,
+        capture: true
+    });
+    window.addEventListener("scroll", keepBackgroundAtLockedPosition, {
+        passive: true
+    });
+
+    updateScrollIndicator();
 }
 
 function unlockDialogPageScroll() {
@@ -1081,38 +1121,22 @@ function unlockDialogPageScroll() {
     if (document.querySelector("dialog[open]")) return;
     if (!dialogPageScrollLocked) return;
 
-    // Disattiva temporaneamente lo smooth scrolling: in questo modo,
-    // rimuovendo il position:fixed, la pagina torna subito alla posizione
-    // originale senza mostrare lo scorrimento dall'alto.
-    const previousInlineScrollBehavior =
-        document.documentElement.style.scrollBehavior;
-
-    document.documentElement.style.scrollBehavior = "auto";
-
     document.documentElement.classList.remove("dialog-scroll-lock");
     document.body.classList.remove("dialog-scroll-lock");
 
-    document.body.style.removeProperty("position");
-    document.body.style.removeProperty("top");
-    document.body.style.removeProperty("left");
-    document.body.style.removeProperty("width");
+    document.removeEventListener("wheel", preventBackgroundScroll, {
+        capture: true
+    });
+    document.removeEventListener("touchmove", preventBackgroundScroll, {
+        capture: true
+    });
+    window.removeEventListener("scroll", keepBackgroundAtLockedPosition);
 
     dialogPageScrollLocked = false;
 
-    window.scrollTo({
-        left: dialogLockedScrollX,
-        top: dialogLockedScrollY,
-        behavior: "auto"
-    });
-
-    requestAnimationFrame(() => {
-        if (previousInlineScrollBehavior) {
-            document.documentElement.style.scrollBehavior =
-                previousInlineScrollBehavior;
-        } else {
-            document.documentElement.style.removeProperty("scroll-behavior");
-        }
-    });
+    // Non c'è più alcun ripristino della pagina: non essendo stato fissato
+    // il body, la posizione resta la stessa e non compaiono barre o salti.
+    updateScrollIndicator();
 }
 
 // Ripulisce eventuali stili inline lasciati da caricamenti/versioni precedenti.
