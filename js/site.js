@@ -118,13 +118,8 @@ function updateScrollIndicator() {
         );
     }
 
-    const indicatorVisible =
-        canScroll &&
-        distanceFromBottom > 100;
-
-    const canActivate =
-        indicatorVisible &&
-        !document.documentElement.classList.contains("envelope-closed");
+    const indicatorVisible = canScroll && distanceFromBottom > 100;
+    const canActivate = indicatorVisible && !document.documentElement.classList.contains("envelope-closed");
     scrollIndicator.tabIndex = canActivate ? 0 : -1;
     scrollIndicator.setAttribute("aria-hidden", String(!canActivate));
 
@@ -1007,7 +1002,7 @@ if (
             dialog.removeAttribute("aria-modal");
 
             activeDialog = parkingDialog;
-            parkingDialog.showModal();
+            parkingDialog.show();
             parkingDialog.setAttribute("aria-modal", "true");
 
             requestAnimationFrame(() => {
@@ -1024,7 +1019,7 @@ if (
             parkingDialog.removeAttribute("aria-modal");
 
             activeDialog = dialog;
-            dialog.showModal();
+            dialog.show();
             dialog.setAttribute("aria-modal", "true");
 
             requestAnimationFrame(() => {
@@ -1051,14 +1046,51 @@ if (
 })();
 
 /* GESTIONE FINESTRE E SFONDO */
+const dialogBackdrop = document.createElement("div");
+dialogBackdrop.className = "dialog-backdrop";
+dialogBackdrop.hidden = true;
+dialogBackdrop.setAttribute("aria-hidden", "true");
+document.body.appendChild(dialogBackdrop);
+
 let activeDialog = null;
+
+function lockDialogPageScroll() {
+    document.documentElement.classList.add("dialog-scroll-lock");
+    document.body.classList.add("dialog-scroll-lock");
+}
+
+function unlockDialogPageScroll() {
+    // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
+    if (document.querySelector("dialog[open]")) return;
+
+    document.documentElement.classList.remove("dialog-scroll-lock");
+    document.body.classList.remove("dialog-scroll-lock");
+}
+
+// Ripulisce eventuali stili inline lasciati dalla precedente gestione del blocco scroll.
+document.documentElement.style.removeProperty("overflow");
+document.body.style.removeProperty("position");
+document.body.style.removeProperty("top");
+document.body.style.removeProperty("left");
+document.body.style.removeProperty("right");
+document.body.style.removeProperty("width");
+document.body.style.removeProperty("overflow");
 
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
+    lockDialogPageScroll();
 
-    dialog.showModal();
+    dialogBackdrop.hidden = false;
+    dialogBackdrop.classList.remove("is-closing");
+
+    // Forza un nuovo frame così il fade parte sempre da zero.
+    requestAnimationFrame(() => {
+        dialogBackdrop.classList.add("is-visible");
+    });
+
+    dialog.show();
     dialog.setAttribute("aria-modal", "true");
 }
 
@@ -1080,9 +1112,17 @@ function closeDialogAnimated(dialog) {
         dialog.close();
         dialog.removeAttribute("aria-modal");
 
+        dialogBackdrop.classList.remove(
+            "is-visible",
+            "is-closing"
+        );
+        dialogBackdrop.hidden = true;
+
         if (activeDialog === dialog) {
             activeDialog = null;
         }
+
+        unlockDialogPageScroll();
         return;
     }
 
@@ -1099,6 +1139,14 @@ function closeDialogAnimated(dialog) {
     );
 
     dialog.classList.add("is-closing");
+
+    dialogBackdrop.classList.remove(
+        "is-visible"
+    );
+
+    dialogBackdrop.classList.add(
+        "is-closing"
+    );
 
     let finished = false;
 
@@ -1122,6 +1170,8 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
+
+        unlockDialogPageScroll();
     }
 
     function onDialogEnd(event) {
@@ -1148,20 +1198,45 @@ function closeDialogAnimated(dialog) {
         finishDialog,
         600
     );
+
+    window.setTimeout(
+        () => {
+            dialogBackdrop.classList.remove(
+                "is-closing"
+            );
+
+            dialogBackdrop.hidden = true;
+        },
+        650
+    );
 }
 
-document.querySelectorAll("dialog").forEach(dialog => {
-    dialog.addEventListener("click", event => {
-        if (event.target === dialog) {
-            closeDialogAnimated(dialog);
+dialogBackdrop.addEventListener(
+    "click",
+    () => {
+        if (activeDialog) {
+            closeDialogAnimated(
+                activeDialog
+            );
         }
-    });
+    }
+);
 
-    dialog.addEventListener("cancel", event => {
-        event.preventDefault();
-        closeDialogAnimated(dialog);
-    });
-});
+document.addEventListener(
+    "keydown",
+    event => {
+        if (
+            event.key === "Escape" &&
+            activeDialog
+        ) {
+            event.preventDefault();
+
+            closeDialogAnimated(
+                activeDialog
+            );
+        }
+    }
+);
 
 /* MUSICA: SCELTA DISPONIBILE ANCHE A BUSTA CHIUSA */
 (() => {
