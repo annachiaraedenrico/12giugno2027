@@ -1059,87 +1059,6 @@ document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
-let dialogScrollLockX = 0;
-let dialogScrollLockY = 0;
-let dialogScrollLockActive = false;
-
-function stopBackgroundScroll(event) {
-    if (!dialogScrollLockActive) return;
-
-    const dialog = activeDialog && activeDialog.open
-        ? activeDialog
-        : document.querySelector("dialog[open]");
-
-    if (dialog && dialog.contains(event.target)) {
-        return;
-    }
-
-    event.preventDefault();
-}
-
-function holdBackgroundScrollPosition() {
-    if (!dialogScrollLockActive) return;
-
-    if (
-        Math.abs(window.scrollX - dialogScrollLockX) > 1 ||
-        Math.abs(window.scrollY - dialogScrollLockY) > 1
-    ) {
-        window.scrollTo({
-            left: dialogScrollLockX,
-            top: dialogScrollLockY,
-            behavior: "auto"
-        });
-    }
-}
-
-function lockBackgroundScroll() {
-    if (dialogScrollLockActive) return;
-
-    dialogScrollLockX = window.scrollX;
-    dialogScrollLockY = window.scrollY;
-    dialogScrollLockActive = true;
-
-    document.addEventListener("wheel", stopBackgroundScroll, {
-        passive: false,
-        capture: true
-    });
-
-    document.addEventListener("touchmove", stopBackgroundScroll, {
-        passive: false,
-        capture: true
-    });
-
-    window.addEventListener(
-        "scroll",
-        holdBackgroundScrollPosition,
-        { passive: true }
-    );
-}
-
-function unlockBackgroundScroll() {
-    if (!dialogScrollLockActive) return;
-    if (document.querySelector("dialog[open]")) return;
-
-    document.removeEventListener(
-        "wheel",
-        stopBackgroundScroll,
-        { capture: true }
-    );
-
-    document.removeEventListener(
-        "touchmove",
-        stopBackgroundScroll,
-        { capture: true }
-    );
-
-    window.removeEventListener(
-        "scroll",
-        holdBackgroundScrollPosition
-    );
-
-    dialogScrollLockActive = false;
-}
-
 function syncDialogBackdropToViewport() {
     if (dialogBackdrop.hidden) return;
 
@@ -1191,7 +1110,6 @@ function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
-    lockBackgroundScroll();
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
@@ -1233,8 +1151,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
-        unlockBackgroundScroll();
         return;
     }
 
