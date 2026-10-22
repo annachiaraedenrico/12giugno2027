@@ -925,13 +925,6 @@
 
 }
 
-/* BLOCCO SCORRIMENTO PAGINA QUANDO UNA FINESTRA È APERTA */
-html.dialog-scroll-lock,
-body.dialog-scroll-lock {
-    overflow: hidden !important;
-    overscroll-behavior: none;
-}
-
 /* =======================================================
    CALENDARIO
 ======================================================= */
@@ -964,6 +957,7 @@ body.dialog-scroll-lock {
     -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
+    touch-action: none;
 
     /* Estende visivamente il blur oltre i bordi senza cambiare il layout. */
     transform: scale(1.12);
