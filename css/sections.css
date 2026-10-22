@@ -948,30 +948,18 @@
     overscroll-behavior: contain;
 }
 
-.dialog-backdrop {
-    /*
-       Il layer segue il visual viewport ma resta fuori dal normale layout.
-       Così Safari non può usarlo per ricalcolare la larghezza della pagina.
-    */
-    position: fixed;
-    inset: auto;
-
-    z-index: 1150;
+.calendar-dialog::backdrop {
     background: transparent;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    opacity: 0;
-    pointer-events: none;
 }
 
-.dialog-backdrop.is-visible {
+.calendar-dialog[open]::backdrop {
     animation: calendar-fade 650ms ease both;
-    pointer-events: auto;
 }
 
-.dialog-backdrop.is-closing {
+.calendar-dialog.is-closing::backdrop {
     animation: calendar-fade 650ms ease reverse both;
-    pointer-events: none;
 }
 
 .calendar-dialog[open] {
