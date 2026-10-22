@@ -43,9 +43,7 @@ body {
 ========================================================= */
 
 html.envelope-closed,
-html.envelope-closed body,
-html.dialog-open,
-html.dialog-open body {
+html.envelope-closed body {
     overflow: hidden;
     overscroll-behavior: none;
 }
