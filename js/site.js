@@ -1059,6 +1059,15 @@ document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
+function lockDialogScroll() {
+    document.documentElement.classList.add("dialog-open");
+}
+
+function unlockDialogScroll() {
+    if (document.querySelector("dialog[open]")) return;
+    document.documentElement.classList.remove("dialog-open");
+}
+
 function syncDialogBackdropToViewport() {
     if (dialogBackdrop.hidden) return;
 
@@ -1110,6 +1119,7 @@ function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
+    lockDialogScroll();
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
@@ -1151,6 +1161,8 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
+
+        unlockDialogScroll();
         return;
     }
 
@@ -1198,6 +1210,8 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
+
+        unlockDialogScroll();
     }
 
     function onDialogEnd(event) {
