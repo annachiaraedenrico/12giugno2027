@@ -1054,27 +1054,76 @@ document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
+function preventBackgroundScroll(event) {
+    if (!activeDialog || !activeDialog.open) return;
+
+    // Dentro la finestra aperta lo scroll resta consentito.
+    if (activeDialog.contains(event.target)) return;
+
+    event.preventDefault();
+}
+
+function preventBackgroundScrollKeys(event) {
+    if (!activeDialog || !activeDialog.open) return;
+    if (activeDialog.contains(event.target)) return;
+
+    const scrollingKeys = [
+        "ArrowUp",
+        "ArrowDown",
+        "PageUp",
+        "PageDown",
+        "Home",
+        "End",
+        " "
+    ];
+
+    if (scrollingKeys.includes(event.key)) {
+        event.preventDefault();
+    }
+}
+
 function lockDialogPageScroll() {
-    document.documentElement.classList.add("dialog-scroll-lock");
-    document.body.classList.add("dialog-scroll-lock");
+    document.addEventListener(
+        "wheel",
+        preventBackgroundScroll,
+        { passive: false, capture: true }
+    );
+
+    document.addEventListener(
+        "touchmove",
+        preventBackgroundScroll,
+        { passive: false, capture: true }
+    );
+
+    document.addEventListener(
+        "keydown",
+        preventBackgroundScrollKeys,
+        true
+    );
 }
 
 function unlockDialogPageScroll() {
     // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
     if (document.querySelector("dialog[open]")) return;
 
-    document.documentElement.classList.remove("dialog-scroll-lock");
-    document.body.classList.remove("dialog-scroll-lock");
-}
+    document.removeEventListener(
+        "wheel",
+        preventBackgroundScroll,
+        true
+    );
 
-// Ripulisce eventuali stili inline lasciati dalla precedente gestione del blocco scroll.
-document.documentElement.style.removeProperty("overflow");
-document.body.style.removeProperty("position");
-document.body.style.removeProperty("top");
-document.body.style.removeProperty("left");
-document.body.style.removeProperty("right");
-document.body.style.removeProperty("width");
-document.body.style.removeProperty("overflow");
+    document.removeEventListener(
+        "touchmove",
+        preventBackgroundScroll,
+        true
+    );
+
+    document.removeEventListener(
+        "keydown",
+        preventBackgroundScrollKeys,
+        true
+    );
+}
 
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
