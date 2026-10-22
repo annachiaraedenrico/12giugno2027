@@ -1151,7 +1151,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
         return;
     }
 
@@ -1199,7 +1198,6 @@ function closeDialogAnimated(dialog) {
         if (activeDialog === dialog) {
             activeDialog = null;
         }
-
     }
 
     function onDialogEnd(event) {
@@ -1238,14 +1236,6 @@ function closeDialogAnimated(dialog) {
         650
     );
 }
-
-dialogBackdrop.addEventListener(
-    "wheel",
-    event => {
-        event.preventDefault();
-    },
-    { passive: false }
-);
 
 dialogBackdrop.addEventListener(
     "click",
