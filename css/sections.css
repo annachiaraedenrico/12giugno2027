@@ -950,7 +950,15 @@
 
 .dialog-backdrop {
     position: fixed;
-    inset: 0;
+
+    /*
+       Safari può lasciare visibili sottili fasce ai bordi quando applica
+       backdrop-filter a un layer che coincide esattamente con il viewport.
+       Il layer viene quindi esteso oltre lo schermo: visivamente non cambia
+       nulla, ma la sfocatura continua anche oltre i bordi visibili.
+    */
+    inset: -32px;
+
     z-index: 1150;
     background: transparent;
     backdrop-filter: blur(4px);
