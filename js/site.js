@@ -1081,6 +1081,14 @@ function unlockDialogPageScroll() {
     if (document.querySelector("dialog[open]")) return;
     if (!dialogPageScrollLocked) return;
 
+    // Disattiva temporaneamente lo smooth scrolling: in questo modo,
+    // rimuovendo il position:fixed, la pagina torna subito alla posizione
+    // originale senza mostrare lo scorrimento dall'alto.
+    const previousInlineScrollBehavior =
+        document.documentElement.style.scrollBehavior;
+
+    document.documentElement.style.scrollBehavior = "auto";
+
     document.documentElement.classList.remove("dialog-scroll-lock");
     document.body.classList.remove("dialog-scroll-lock");
 
@@ -1091,8 +1099,20 @@ function unlockDialogPageScroll() {
 
     dialogPageScrollLocked = false;
 
-    // Torna esattamente al punto in cui si trovava la pagina prima dell'apertura.
-    window.scrollTo(dialogLockedScrollX, dialogLockedScrollY);
+    window.scrollTo({
+        left: dialogLockedScrollX,
+        top: dialogLockedScrollY,
+        behavior: "auto"
+    });
+
+    requestAnimationFrame(() => {
+        if (previousInlineScrollBehavior) {
+            document.documentElement.style.scrollBehavior =
+                previousInlineScrollBehavior;
+        } else {
+            document.documentElement.style.removeProperty("scroll-behavior");
+        }
+    });
 }
 
 // Ripulisce eventuali stili inline lasciati da caricamenti/versioni precedenti.
