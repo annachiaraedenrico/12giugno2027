@@ -1007,7 +1007,7 @@ if (
             dialog.removeAttribute("aria-modal");
 
             activeDialog = parkingDialog;
-            parkingDialog.show();
+            parkingDialog.showModal();
             parkingDialog.setAttribute("aria-modal", "true");
 
             requestAnimationFrame(() => {
@@ -1024,7 +1024,7 @@ if (
             parkingDialog.removeAttribute("aria-modal");
 
             activeDialog = dialog;
-            dialog.show();
+            dialog.showModal();
             dialog.setAttribute("aria-modal", "true");
 
             requestAnimationFrame(() => {
@@ -1051,76 +1051,14 @@ if (
 })();
 
 /* GESTIONE FINESTRE E SFONDO */
-const dialogBackdrop = document.createElement("div");
-dialogBackdrop.className = "dialog-backdrop";
-dialogBackdrop.hidden = true;
-dialogBackdrop.setAttribute("aria-hidden", "true");
-document.body.appendChild(dialogBackdrop);
-
 let activeDialog = null;
-
-function syncDialogBackdropToViewport() {
-    if (dialogBackdrop.hidden) return;
-
-    const viewport = window.visualViewport;
-    const overscan = 96;
-
-    const viewportLeft = viewport
-        ? viewport.offsetLeft
-        : 0;
-
-    const viewportTop = viewport
-        ? viewport.offsetTop
-        : 0;
-
-    const viewportWidth = viewport
-        ? viewport.width
-        : window.innerWidth;
-
-    const viewportHeight = viewport
-        ? viewport.height
-        : window.innerHeight;
-
-    dialogBackdrop.style.left = `${viewportLeft - overscan}px`;
-    dialogBackdrop.style.top = `${viewportTop - overscan}px`;
-    dialogBackdrop.style.width = `${viewportWidth + overscan * 2}px`;
-    dialogBackdrop.style.height = `${viewportHeight + overscan * 2}px`;
-}
-
-window.addEventListener("scroll", syncDialogBackdropToViewport, {
-    passive: true
-});
-
-window.addEventListener("resize", syncDialogBackdropToViewport);
-
-if (window.visualViewport) {
-    window.visualViewport.addEventListener(
-        "scroll",
-        syncDialogBackdropToViewport,
-        { passive: true }
-    );
-
-    window.visualViewport.addEventListener(
-        "resize",
-        syncDialogBackdropToViewport
-    );
-}
 
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
 
-    dialogBackdrop.hidden = false;
-    dialogBackdrop.classList.remove("is-closing");
-    syncDialogBackdropToViewport();
-
-    // Forza un nuovo frame così il fade parte sempre da zero.
-    requestAnimationFrame(() => {
-        dialogBackdrop.classList.add("is-visible");
-    });
-
-    dialog.show();
+    dialog.showModal();
     dialog.setAttribute("aria-modal", "true");
 }
 
@@ -1142,12 +1080,6 @@ function closeDialogAnimated(dialog) {
         dialog.close();
         dialog.removeAttribute("aria-modal");
 
-        dialogBackdrop.classList.remove(
-            "is-visible",
-            "is-closing"
-        );
-        dialogBackdrop.hidden = true;
-
         if (activeDialog === dialog) {
             activeDialog = null;
         }
@@ -1167,14 +1099,6 @@ function closeDialogAnimated(dialog) {
     );
 
     dialog.classList.add("is-closing");
-
-    dialogBackdrop.classList.remove(
-        "is-visible"
-    );
-
-    dialogBackdrop.classList.add(
-        "is-closing"
-    );
 
     let finished = false;
 
@@ -1224,45 +1148,20 @@ function closeDialogAnimated(dialog) {
         finishDialog,
         600
     );
-
-    window.setTimeout(
-        () => {
-            dialogBackdrop.classList.remove(
-                "is-closing"
-            );
-
-            dialogBackdrop.hidden = true;
-        },
-        650
-    );
 }
 
-dialogBackdrop.addEventListener(
-    "click",
-    () => {
-        if (activeDialog) {
-            closeDialogAnimated(
-                activeDialog
-            );
+document.querySelectorAll("dialog").forEach(dialog => {
+    dialog.addEventListener("click", event => {
+        if (event.target === dialog) {
+            closeDialogAnimated(dialog);
         }
-    }
-);
+    });
 
-document.addEventListener(
-    "keydown",
-    event => {
-        if (
-            event.key === "Escape" &&
-            activeDialog
-        ) {
-            event.preventDefault();
-
-            closeDialogAnimated(
-                activeDialog
-            );
-        }
-    }
-);
+    dialog.addEventListener("cancel", event => {
+        event.preventDefault();
+        closeDialogAnimated(dialog);
+    });
+});
 
 /* MUSICA: SCELTA DISPONIBILE ANCHE A BUSTA CHIUSA */
 (() => {
