@@ -1066,12 +1066,12 @@ function syncDialogBackdropToViewport() {
     const overscan = 96;
 
     const viewportLeft = viewport
-        ? window.scrollX + viewport.offsetLeft
-        : window.scrollX;
+        ? viewport.offsetLeft
+        : 0;
 
     const viewportTop = viewport
-        ? window.scrollY + viewport.offsetTop
-        : window.scrollY;
+        ? viewport.offsetTop
+        : 0;
 
     const viewportWidth = viewport
         ? viewport.width
