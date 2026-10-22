@@ -1053,21 +1053,49 @@ dialogBackdrop.setAttribute("aria-hidden", "true");
 document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
+let dialogLockedScrollX = 0;
+let dialogLockedScrollY = 0;
+let dialogPageScrollLocked = false;
 
 function lockDialogPageScroll() {
+    if (dialogPageScrollLocked) return;
+
+    dialogLockedScrollX = window.scrollX;
+    dialogLockedScrollY = window.scrollY;
+    dialogPageScrollLocked = true;
+
     document.documentElement.classList.add("dialog-scroll-lock");
     document.body.classList.add("dialog-scroll-lock");
+
+    // Blocca fisicamente il documento nella posizione corrente.
+    // È più robusto di overflow:hidden quando l'utente usa pinch-to-zoom,
+    // soprattutto su Safari/iPhone.
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${dialogLockedScrollY}px`;
+    document.body.style.left = `-${dialogLockedScrollX}px`;
+    document.body.style.width = "100%";
 }
 
 function unlockDialogPageScroll() {
     // Se nel frattempo è stata aperta un'altra finestra, mantieni il blocco.
     if (document.querySelector("dialog[open]")) return;
+    if (!dialogPageScrollLocked) return;
 
     document.documentElement.classList.remove("dialog-scroll-lock");
     document.body.classList.remove("dialog-scroll-lock");
+
+    document.body.style.removeProperty("position");
+    document.body.style.removeProperty("top");
+    document.body.style.removeProperty("left");
+    document.body.style.removeProperty("width");
+
+    dialogPageScrollLocked = false;
+
+    // Torna esattamente al punto in cui si trovava la pagina prima dell'apertura.
+    window.scrollTo(dialogLockedScrollX, dialogLockedScrollY);
 }
 
-// Ripulisce eventuali stili inline lasciati dalla precedente gestione del blocco scroll.
+// Ripulisce eventuali stili inline lasciati da caricamenti/versioni precedenti.
 document.documentElement.style.removeProperty("overflow");
 document.body.style.removeProperty("position");
 document.body.style.removeProperty("top");
