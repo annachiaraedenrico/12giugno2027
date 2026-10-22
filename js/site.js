@@ -1059,6 +1059,53 @@ document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
+function syncDialogBackdropToViewport() {
+    if (dialogBackdrop.hidden) return;
+
+    const viewport = window.visualViewport;
+    const overscan = 96;
+
+    const viewportLeft = viewport
+        ? window.scrollX + viewport.offsetLeft
+        : window.scrollX;
+
+    const viewportTop = viewport
+        ? window.scrollY + viewport.offsetTop
+        : window.scrollY;
+
+    const viewportWidth = viewport
+        ? viewport.width
+        : window.innerWidth;
+
+    const viewportHeight = viewport
+        ? viewport.height
+        : window.innerHeight;
+
+    dialogBackdrop.style.left = `${viewportLeft - overscan}px`;
+    dialogBackdrop.style.top = `${viewportTop - overscan}px`;
+    dialogBackdrop.style.width = `${viewportWidth + overscan * 2}px`;
+    dialogBackdrop.style.height = `${viewportHeight + overscan * 2}px`;
+}
+
+window.addEventListener("scroll", syncDialogBackdropToViewport, {
+    passive: true
+});
+
+window.addEventListener("resize", syncDialogBackdropToViewport);
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "scroll",
+        syncDialogBackdropToViewport,
+        { passive: true }
+    );
+
+    window.visualViewport.addEventListener(
+        "resize",
+        syncDialogBackdropToViewport
+    );
+}
+
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
@@ -1066,6 +1113,7 @@ function openDialogAnimated(dialog) {
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
+    syncDialogBackdropToViewport();
 
     // Forza un nuovo frame così il fade parte sempre da zero.
     requestAnimationFrame(() => {
