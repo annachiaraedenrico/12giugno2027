@@ -950,7 +950,7 @@
 
 .dialog-backdrop {
     position: fixed;
-    inset: -48px;
+    inset: -25vh -25vw;
     z-index: 1150;
     background: transparent;
     backdrop-filter: blur(4px);
