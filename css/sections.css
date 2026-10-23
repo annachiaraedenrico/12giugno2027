@@ -949,14 +949,8 @@
 }
 
 .dialog-backdrop {
-    /*
-       Il layer viene posizionato via JavaScript sul visual viewport reale.
-       In questo modo Safari mantiene la sfocatura anche quando le sue barre
-       cambiano dimensione o durante il pinch-to-zoom.
-    */
-    position: absolute;
-    inset: auto;
-
+    position: fixed;
+    inset: -48px;
     z-index: 1150;
     background: transparent;
     backdrop-filter: blur(4px);
