@@ -948,17 +948,10 @@
     overscroll-behavior: contain;
 }
 
-.dialog-backdrop-host {
-    position: fixed;
-    inset: 0;
-    z-index: 1150;
-    pointer-events: none;
-    overflow: visible;
-}
-
 .dialog-backdrop {
     position: absolute;
     inset: auto;
+    z-index: 1150;
     background: transparent;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
