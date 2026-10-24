@@ -1051,21 +1051,70 @@ if (
 })();
 
 /* GESTIONE FINESTRE E SFONDO */
+const dialogBackdropHost = document.createElement("div");
+dialogBackdropHost.className = "dialog-backdrop-host";
+dialogBackdropHost.hidden = true;
+dialogBackdropHost.setAttribute("aria-hidden", "true");
+
 const dialogBackdrop = document.createElement("div");
 dialogBackdrop.className = "dialog-backdrop";
-dialogBackdrop.hidden = true;
-dialogBackdrop.setAttribute("aria-hidden", "true");
-document.body.appendChild(dialogBackdrop);
+
+dialogBackdropHost.appendChild(dialogBackdrop);
+document.body.appendChild(dialogBackdropHost);
 
 let activeDialog = null;
+
+function syncDialogBackdropToViewport() {
+    if (dialogBackdropHost.hidden) return;
+
+    const viewport = window.visualViewport;
+    const overscan = 96;
+
+    const viewportLeft = viewport
+        ? viewport.offsetLeft
+        : 0;
+
+    const viewportTop = viewport
+        ? viewport.offsetTop
+        : 0;
+
+    const viewportWidth = viewport
+        ? viewport.width
+        : window.innerWidth;
+
+    const viewportHeight = viewport
+        ? viewport.height
+        : window.innerHeight;
+
+    dialogBackdrop.style.left = `${viewportLeft - overscan}px`;
+    dialogBackdrop.style.top = `${viewportTop - overscan}px`;
+    dialogBackdrop.style.width = `${viewportWidth + overscan * 2}px`;
+    dialogBackdrop.style.height = `${viewportHeight + overscan * 2}px`;
+}
+
+window.addEventListener("resize", syncDialogBackdropToViewport);
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "scroll",
+        syncDialogBackdropToViewport,
+        { passive: true }
+    );
+
+    window.visualViewport.addEventListener(
+        "resize",
+        syncDialogBackdropToViewport
+    );
+}
 
 function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
 
-    dialogBackdrop.hidden = false;
+    dialogBackdropHost.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
+    syncDialogBackdropToViewport();
 
     // Forza un nuovo frame così il fade parte sempre da zero.
     requestAnimationFrame(() => {
@@ -1098,7 +1147,7 @@ function closeDialogAnimated(dialog) {
             "is-visible",
             "is-closing"
         );
-        dialogBackdrop.hidden = true;
+        dialogBackdropHost.hidden = true;
 
         if (activeDialog === dialog) {
             activeDialog = null;
@@ -1184,7 +1233,7 @@ function closeDialogAnimated(dialog) {
                 "is-closing"
             );
 
-            dialogBackdrop.hidden = true;
+            dialogBackdropHost.hidden = true;
         },
         650
     );
