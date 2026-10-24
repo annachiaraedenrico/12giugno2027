@@ -1051,32 +1051,27 @@ if (
 })();
 
 /* GESTIONE FINESTRE E SFONDO */
-const dialogBackdropHost = document.createElement("div");
-dialogBackdropHost.className = "dialog-backdrop-host";
-dialogBackdropHost.hidden = true;
-dialogBackdropHost.setAttribute("aria-hidden", "true");
-
 const dialogBackdrop = document.createElement("div");
 dialogBackdrop.className = "dialog-backdrop";
-
-dialogBackdropHost.appendChild(dialogBackdrop);
-document.body.appendChild(dialogBackdropHost);
+dialogBackdrop.hidden = true;
+dialogBackdrop.setAttribute("aria-hidden", "true");
+document.body.appendChild(dialogBackdrop);
 
 let activeDialog = null;
 
 function syncDialogBackdropToViewport() {
-    if (dialogBackdropHost.hidden) return;
+    if (dialogBackdrop.hidden) return;
 
     const viewport = window.visualViewport;
-    const overscan = 96;
+    const verticalOverscan = 96;
 
     const viewportLeft = viewport
-        ? viewport.offsetLeft
-        : 0;
+        ? window.scrollX + viewport.offsetLeft
+        : window.scrollX;
 
     const viewportTop = viewport
-        ? viewport.offsetTop
-        : 0;
+        ? window.scrollY + viewport.offsetTop
+        : window.scrollY;
 
     const viewportWidth = viewport
         ? viewport.width
@@ -1086,11 +1081,20 @@ function syncDialogBackdropToViewport() {
         ? viewport.height
         : window.innerHeight;
 
-    dialogBackdrop.style.left = `${viewportLeft - overscan}px`;
-    dialogBackdrop.style.top = `${viewportTop - overscan}px`;
-    dialogBackdrop.style.width = `${viewportWidth + overscan * 2}px`;
-    dialogBackdrop.style.height = `${viewportHeight + overscan * 2}px`;
+    /*
+       Nessun overscan orizzontale: il backdrop non può allargare
+       la larghezza scrollabile del documento dopo un pinch-zoom.
+       Il margine extra resta solo sopra e sotto.
+    */
+    dialogBackdrop.style.left = `${viewportLeft}px`;
+    dialogBackdrop.style.top = `${viewportTop - verticalOverscan}px`;
+    dialogBackdrop.style.width = `${viewportWidth}px`;
+    dialogBackdrop.style.height = `${viewportHeight + verticalOverscan * 2}px`;
 }
+
+window.addEventListener("scroll", syncDialogBackdropToViewport, {
+    passive: true
+});
 
 window.addEventListener("resize", syncDialogBackdropToViewport);
 
@@ -1112,7 +1116,7 @@ function openDialogAnimated(dialog) {
 
     activeDialog = dialog;
 
-    dialogBackdropHost.hidden = false;
+    dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
     syncDialogBackdropToViewport();
 
@@ -1147,7 +1151,7 @@ function closeDialogAnimated(dialog) {
             "is-visible",
             "is-closing"
         );
-        dialogBackdropHost.hidden = true;
+        dialogBackdrop.hidden = true;
 
         if (activeDialog === dialog) {
             activeDialog = null;
@@ -1233,7 +1237,7 @@ function closeDialogAnimated(dialog) {
                 "is-closing"
             );
 
-            dialogBackdropHost.hidden = true;
+            dialogBackdrop.hidden = true;
         },
         650
     );
