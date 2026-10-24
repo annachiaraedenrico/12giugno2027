@@ -124,17 +124,3 @@ button {
     }
 
 }
-
-/* Sfocatura diretta dello sfondo quando un popup è aperto */
-body.dialog-background-blur .site,
-body.dialog-background-blur .scroll-indicator,
-body.dialog-background-blur .music-toggle,
-body.dialog-background-blur::before {
-    filter: blur(4px);
-}
-
-body.dialog-background-blur .site,
-body.dialog-background-blur .scroll-indicator,
-body.dialog-background-blur .music-toggle {
-    transition: filter 220ms ease;
-}
