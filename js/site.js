@@ -1063,7 +1063,6 @@ function openDialogAnimated(dialog) {
     if (!dialog || dialog.open) return;
 
     activeDialog = dialog;
-    document.body.classList.add("dialog-background-blur");
 
     dialogBackdrop.hidden = false;
     dialogBackdrop.classList.remove("is-closing");
@@ -1105,9 +1104,6 @@ function closeDialogAnimated(dialog) {
             activeDialog = null;
         }
 
-        if (!document.querySelector("dialog[open]")) {
-            document.body.classList.remove("dialog-background-blur");
-        }
         return;
     }
 
@@ -1154,10 +1150,6 @@ function closeDialogAnimated(dialog) {
 
         if (activeDialog === dialog) {
             activeDialog = null;
-        }
-
-        if (!document.querySelector("dialog[open]")) {
-            document.body.classList.remove("dialog-background-blur");
         }
     }
 
