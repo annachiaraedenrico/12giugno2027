@@ -952,7 +952,9 @@
     position: fixed;
     inset: 0;
     z-index: 1150;
-    background: transparent;
+    background: rgba(80, 65, 55, 0.18);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
 }
