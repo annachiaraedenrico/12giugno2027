@@ -1107,7 +1107,21 @@ if (window.visualViewport) {
 
     window.visualViewport.addEventListener(
         "resize",
-        syncDialogBackdropToViewport
+        () => {
+            syncDialogBackdropToViewport();
+
+            if (
+                activeDialog &&
+                activeDialog.open &&
+                Math.abs(window.visualViewport.scale - 1) < 0.01
+            ) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(
+                        syncDialogBackdropToViewport
+                    );
+                });
+            }
+        }
     );
 }
 
